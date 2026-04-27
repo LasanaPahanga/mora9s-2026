@@ -1,0 +1,46 @@
+# Deploy user + admin Vite apps to Vercel (two separate Vercel projects).
+# Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN
+# Set VITE_API_URL and VITE_ADMIN_API in each Vercel project (not in GitHub).
+
+name: Deploy frontends to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "user-mode/client/**"
+      - "admin-mode/client/**"
+      - ".github/workflows/deploy-vercel-frontends.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy-user:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy user site to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_USER }}
+          working-directory: user-mode/client
+          vercel-args: "--prod"
+
+  deploy-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy admin site to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+          working-directory: admin-mode/client
+          vercel-args: "--prod"

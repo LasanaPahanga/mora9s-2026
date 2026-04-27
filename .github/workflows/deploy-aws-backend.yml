@@ -1,0 +1,47 @@
+# Run backend on EC2: pull latest code, install deps, restart PM2.
+# Prerequisites on EC2: repo at DEPLOY_PATH, PM2 process names, Node, MySQL, .env files.
+# Secrets: EC2_HOST, EC2_USER, EC2_SSH_KEY (full .pem content)
+
+name: Deploy backend to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "user-mode/server/**"
+      - "admin-mode/server/**"
+      - ".github/workflows/deploy-aws-backend.yml"
+  workflow_dispatch:
+
+env:
+  # Must match the clone path on the server (see docs/HOSTING.md)
+  DEPLOY_PATH: /var/www/mora9s-2026
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            D="${{ env.DEPLOY_PATH }}"
+            cd "$D"
+            git config --global --add safe.directory "$D"
+            git pull origin main
+            (cd user-mode/server && npm ci)
+            (cd "$D/admin-mode/server" && npm ci)
+            cd "$D"
+            if pm2 describe mora9s-user >/dev/null 2>&1; then
+              pm2 restart mora9s-user mora9s-admin --update-env
+            else
+              pm2 start user-mode/server/src/app.js --name mora9s-user --cwd "$D/user-mode/server"
+              pm2 start admin-mode/server/src/app.js --name mora9s-admin --cwd "$D/admin-mode/server"
+            fi
+            pm2 save
