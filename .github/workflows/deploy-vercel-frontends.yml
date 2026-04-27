@@ -51,6 +51,8 @@ jobs:
       - name: Deploy user site to Vercel
         uses: amondnet/vercel-action@v25
         with:
+          # amondnet/vercel-action defaults to vercel@25; Vercel’s API requires a current CLI (see npm "vercel" package, e.g. 52+).
+          vercel-version: 52.0.0
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_USER }}
@@ -67,6 +69,7 @@ jobs:
       - name: Deploy admin site to Vercel
         uses: amondnet/vercel-action@v25
         with:
+          vercel-version: 52.0.0
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}

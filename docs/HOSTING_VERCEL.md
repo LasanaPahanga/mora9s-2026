@@ -209,6 +209,7 @@ After the secrets are saved, re-run the failed workflow ( **Actions** → the wo
 | **API errors / CORS in browser** | The browser calls whatever you put in `VITE_API_URL` / `VITE_ADMIN_API`. Fix the **API** host and CORS on the **server** (see [HOSTING_INTEGRATION.md](HOSTING_INTEGRATION.md)). |
 | **“Invalid environment variable”** | Names must be exactly **`VITE_API_URL`** and **`VITE_ADMIN_API`**. |
 | **GitHub Actions: `vercel-token` not supplied** / `Input required and not supplied: vercel-token` | Add **`VERCEL_TOKEN`** (and the other [§7.1](#71-github-actions-token-deploy) secrets) in the **GitHub** repo, not only in Vercel. The workflow reads **`Settings → Secrets and variables → Actions`**. |
+| **GitHub Actions: `Your Vercel CLI version is outdated...` (Vercel API / CLI)** | The workflow sets **`vercel-version`** in `.github/workflows/deploy-vercel-frontends.yml` so GitHub does not use the action’s old default (`vercel@25`). Bump the pin to a current [npm `vercel` package](https://www.npmjs.com/package/vercel) version (e.g. `npm view vercel version`) if the error returns. |
 
 ---
 
