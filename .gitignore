@@ -38,3 +38,18 @@ coverage/
 # Misc
 .cache/
 *.pem
+
+# Vercel CLI (local `vercel link` / project settings — can contain sensitive ids)
+**/.vercel/
+
+# ---------------------------------------------------------------------------
+# Documentation: `docs/*.md` and top-level `*.md` in this repo are versioned.
+# Do not add a plain `docs/` or `*.md` rule here — that would block hosting docs.
+# Below: local-only / draft sidecar files (optional; safe to add on your machine):
+# ---------------------------------------------------------------------------
+**/*.md.local
+**/*.md.bak
+**/*~.md
+docs/**/.DS_Store
+docs/_local/
+docs/_drafts/
