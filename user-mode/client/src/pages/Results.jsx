@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useSocket from "../hooks/useSocket";
+import CategoryFilterTabs from "../components/CategoryFilterTabs";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -145,30 +146,15 @@ function Results() {
           <p className="text-xs text-slate-500 mt-2">💡 Click on any match card to see full details</p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6">
-          {[
-            { key: "all", label: "All Results", icon: "🏆" },
-            { key: "men", label: "Men's", icon: "🏒" },
-            { key: "women", label: "Women's", icon: "🏑" }
-          ].map(({ key, label, icon }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                filter === key
-                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-              }`}
-            >
-              <span>{icon}</span>
-              <span>{label}</span>
-              <span className="text-xs bg-black/20 px-2 py-1 rounded-full">
-                {key === "all" ? results.length : results.filter(r => r.category === key).length}
-              </span>
-            </button>
-          ))}
-        </div>
+        <CategoryFilterTabs
+          value={filter}
+          onChange={setFilter}
+          items={[
+            { key: "all", label: "All Results", icon: "🏆", count: results.length },
+            { key: "men", label: "Men's", icon: "🏒", count: results.filter((r) => r.category === "men").length },
+            { key: "women", label: "Women's", icon: "🏑", count: results.filter((r) => r.category === "women").length },
+          ]}
+        />
 
         {loading ? (
           <div className="text-center text-slate-400 py-12">Loading results...</div>

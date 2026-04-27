@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useSocket from "../hooks/useSocket";
+import CategoryFilterTabs from "../components/CategoryFilterTabs";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -87,60 +88,72 @@ function PointsTablePage() {
           </span>
         </div>
       </div>
-      <div>
-        <table className="w-full">
+      <div
+        className="overflow-x-auto rounded-b-xl -mx-1 px-1 sm:mx-0 sm:px-0 [scrollbar-width:thin]"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <p className="mb-1.5 text-[10px] text-slate-500 sm:hidden">
+          ← Swipe the table sideways to see GF, GA, GD, Pts →
+        </p>
+        <table className="w-full min-w-[34rem] border-collapse text-xs sm:min-w-full sm:text-sm">
           <thead className="bg-slate-900/50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Pos</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-300">Team</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">P</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">W</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">D</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">L</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">GF</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">GA</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-slate-300">GD</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-emerald-400">Pts</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-left text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">Pos</th>
+              <th className="min-w-[5.5rem] px-2 py-2.5 text-left text-[10px] font-semibold text-slate-300 sm:min-w-0 sm:px-4 sm:py-3 sm:text-xs">Team</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">P</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">W</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">D</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">L</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GF</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GA</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GD</th>
+              <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-emerald-400 sm:px-4 sm:py-3 sm:text-xs">Pts</th>
             </tr>
           </thead>
           <tbody>
             {teams.map((row, idx) => (
               <tr
                 key={row.team_id}
-                className={`border-t border-slate-700 hover:bg-slate-750 transition-colors ${
-                  idx === 0 ? 'bg-emerald-900/10' : ''
+                className={`border-t border-slate-700 transition-colors hover:bg-slate-700/30 ${
+                  idx === 0 ? "bg-emerald-900/10" : ""
                 }`}
               >
-                <td className="px-4 py-3">
-                  <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
-                    idx === 0 ? 'bg-emerald-500 text-white' :
-                    idx === 1 ? 'bg-cyan-500 text-white' :
-                    idx === 2 ? 'bg-blue-500 text-white' :
-                    'bg-slate-700 text-slate-300'
-                  }`}>
+                <td className="px-2 py-2 sm:px-4 sm:py-3">
+                  <span
+                    className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold sm:h-7 sm:w-7 sm:text-xs ${
+                      idx === 0
+                        ? "bg-emerald-500 text-white"
+                        : idx === 1
+                          ? "bg-cyan-500 text-white"
+                          : idx === 2
+                            ? "bg-blue-500 text-white"
+                            : "bg-slate-700 text-slate-300"
+                    }`}
+                  >
                     {idx + 1}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-2 sm:px-4 sm:py-3">
                   <span className="font-semibold text-white">{row.team_name}</span>
                 </td>
-                <td className="px-4 py-3 text-center text-slate-300">{row.played}</td>
-                <td className="px-4 py-3 text-center text-green-400">{row.won}</td>
-                <td className="px-4 py-3 text-center text-yellow-400">{row.drawn}</td>
-                <td className="px-4 py-3 text-center text-red-400">{row.lost}</td>
-                <td className="px-4 py-3 text-center text-slate-300">{row.goals_for}</td>
-                <td className="px-4 py-3 text-center text-slate-300">{row.goals_against}</td>
-                <td className="px-4 py-3 text-center">
-                  <span className={`font-semibold ${
-                    row.goal_difference > 0 ? 'text-emerald-400' :
-                    row.goal_difference < 0 ? 'text-red-400' :
-                    'text-slate-300'
-                  }`}>
-                    {row.goal_difference > 0 ? '+' : ''}{row.goal_difference}
+                <td className="px-2 py-2 text-center text-slate-300 sm:px-4 sm:py-3 tabular-nums">{row.played}</td>
+                <td className="px-2 py-2 text-center text-green-400 sm:px-4 sm:py-3 tabular-nums">{row.won}</td>
+                <td className="px-2 py-2 text-center text-yellow-400 sm:px-4 sm:py-3 tabular-nums">{row.drawn}</td>
+                <td className="px-2 py-2 text-center text-red-400 sm:px-4 sm:py-3 tabular-nums">{row.lost}</td>
+                <td className="px-2 py-2 text-center text-slate-300 sm:px-4 sm:py-3 tabular-nums">{row.goals_for}</td>
+                <td className="px-2 py-2 text-center text-slate-300 sm:px-4 sm:py-3 tabular-nums">{row.goals_against}</td>
+                <td className="px-2 py-2 text-center sm:px-4 sm:py-3 tabular-nums">
+                  <span
+                    className={`font-semibold ${
+                      row.goal_difference > 0 ? "text-emerald-400" : row.goal_difference < 0 ? "text-red-400" : "text-slate-300"
+                    }`}
+                  >
+                    {row.goal_difference > 0 ? "+" : ""}
+                    {row.goal_difference}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-center">
-                  <span className="inline-block bg-emerald-500 text-white font-bold px-3 py-1 rounded-full text-sm">
+                <td className="px-2 py-2 text-center sm:px-4 sm:py-3">
+                  <span className="inline-block rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-bold text-white sm:px-3 sm:py-1 sm:text-sm">
                     {row.points}
                   </span>
                 </td>
@@ -162,30 +175,15 @@ function PointsTablePage() {
           <p className="text-slate-400">Current standings and team statistics by group and category</p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6">
-          {[
-            { key: "all", label: "All Categories", icon: "🏆" },
-            { key: "men", label: "Men's", icon: "🏒" },
-            { key: "women", label: "Women's", icon: "🏑" }
-          ].map(({ key, label, icon }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                filter === key
-                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-              }`}
-            >
-              <span>{icon}</span>
-              <span>{label}</span>
-              <span className="text-xs bg-black/20 px-2 py-1 rounded-full">
-                {key === "all" ? points.length : points.filter(p => p.category === key).length}
-              </span>
-            </button>
-          ))}
-        </div>
+        <CategoryFilterTabs
+          value={filter}
+          onChange={setFilter}
+          items={[
+            { key: "all", label: "All Categories", icon: "🏆", count: points.length },
+            { key: "men", label: "Men's", icon: "🏒", count: points.filter((p) => p.category === "men").length },
+            { key: "women", label: "Women's", icon: "🏑", count: points.filter((p) => p.category === "women").length },
+          ]}
+        />
 
         {loading ? (
           <div className="text-center text-slate-400 py-12">Loading points table...</div>
@@ -198,7 +196,7 @@ function PointsTablePage() {
             {/* Men's Category */}
             {(filter === "all" || filter === "men") && groupedData.men && Object.keys(groupedData.men).length > 0 && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-blue-400 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-blue-400 sm:text-3xl flex items-center gap-2">
                   <span>♂</span> Men's Category
                 </h2>
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -212,7 +210,7 @@ function PointsTablePage() {
             {/* Women's Category */}
             {(filter === "all" || filter === "women") && groupedData.women && Object.keys(groupedData.women).length > 0 && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-pink-400 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-pink-400 sm:text-3xl flex items-center gap-2">
                   <span>♀</span> Women's Category
                 </h2>
                 <div className="grid gap-6 lg:grid-cols-2">
