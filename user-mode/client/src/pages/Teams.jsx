@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 function Teams() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("men");
 
   // Fetch initial data
   const fetchTeams = () => {
@@ -51,10 +51,7 @@ function Teams() {
     fetchTeams();
   });
 
-  const filteredTeams = teams.filter((team) => {
-    if (filter === "all") return true;
-    return team.category === filter;
-  });
+  const filteredTeams = teams.filter((team) => team.category === filter);
 
   // Function to get university logo based on team name
   const getTeamLogo = (teamName) => {
@@ -88,7 +85,6 @@ function Teams() {
           value={filter}
           onChange={setFilter}
           items={[
-            { key: "all", label: "All Teams", icon: "🏆", count: teams.length },
             { key: "men", label: "Men's", icon: "🏒", count: teams.filter((t) => t.category === "men").length },
             { key: "women", label: "Women's", icon: "🏑", count: teams.filter((t) => t.category === "women").length },
           ]}
@@ -102,7 +98,7 @@ function Teams() {
           </div>
         ) : filteredTeams.length === 0 ? (
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
-            <p className="text-slate-400">No {filter === "all" ? "" : filter + "'s"} teams found.</p>
+            <p className="text-slate-400">No {filter === "men" ? "men's" : "women's"} teams in this list yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

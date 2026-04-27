@@ -9,7 +9,7 @@ function Results() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCards, setExpandedCards] = useState(new Set());
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("men");
 
   const toggleCard = (matchId) => {
     setExpandedCards(prev => {
@@ -112,10 +112,7 @@ function Results() {
     }
   };
 
-  const filteredResults = results.filter((result) => {
-    if (filter === "all") return true;
-    return result.category === filter;
-  });
+  const filteredResults = results.filter((result) => result.category === filter);
 
   // Function to get university logo based on team name
   const getTeamLogo = (teamName) => {
@@ -150,7 +147,6 @@ function Results() {
           value={filter}
           onChange={setFilter}
           items={[
-            { key: "all", label: "All Results", icon: "🏆", count: results.length },
             { key: "men", label: "Men's", icon: "🏒", count: results.filter((r) => r.category === "men").length },
             { key: "women", label: "Women's", icon: "🏑", count: results.filter((r) => r.category === "women").length },
           ]}
@@ -164,7 +160,7 @@ function Results() {
           </div>
         ) : filteredResults.length === 0 ? (
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
-            <p className="text-slate-400">No {filter === "all" ? "" : filter + "'s"} results found.</p>
+            <p className="text-slate-400">No {filter === "men" ? "men's" : "women's"} results recorded yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

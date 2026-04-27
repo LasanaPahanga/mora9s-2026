@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useSocket from "../hooks/useSocket";
+import CategoryFilterTabs from "../components/CategoryFilterTabs";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 function TopScorers() {
   const [scorers, setScorers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // all, men, women
+  const [filter, setFilter] = useState("men");
 
   // Fetch initial data
   const fetchTopScorers = () => {
@@ -55,10 +56,7 @@ function TopScorers() {
     fetchTopScorers();
   });
 
-  const filteredScorers = scorers.filter((scorer) => {
-    if (filter === "all") return true;
-    return scorer.category === filter;
-  });
+  const filteredScorers = scorers.filter((scorer) => scorer.category === filter);
 
   // Function to get university logo based on team name
   const getTeamLogo = (teamName) => {
@@ -88,36 +86,24 @@ function TopScorers() {
           <p className="text-slate-400">Leading goal scorers in the tournament</p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6">
-          {[
-            { key: "all", label: "All Scorers", icon: "🏆" },
-            { key: "men", label: "Men's", icon: "🏒" },
-            { key: "women", label: "Women's", icon: "🏑" }
-          ].map(({ key, label, icon }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                filter === key
-                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
-              }`}
-            >
-              <span>{icon}</span>
-              <span>{label}</span>
-              <span className="text-xs bg-black/20 px-2 py-1 rounded-full">
-                {key === "all" ? scorers.length : scorers.filter(s => s.category === key).length}
-              </span>
-            </button>
-          ))}
-        </div>
+        <CategoryFilterTabs
+          value={filter}
+          onChange={setFilter}
+          items={[
+            { key: "men", label: "Men's", icon: "🏒", count: scorers.filter((s) => s.category === "men").length },
+            { key: "women", label: "Women's", icon: "🏑", count: scorers.filter((s) => s.category === "women").length },
+          ]}
+        />
 
         {loading ? (
           <div className="text-center text-slate-400 py-12">Loading top scorers...</div>
         ) : filteredScorers.length === 0 ? (
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
-            <p className="text-slate-400">No goal scorers recorded yet.</p>
+            <p className="text-slate-400">
+              {scorers.length === 0
+                ? "No goal scorers recorded yet."
+                : `No ${filter === "men" ? "men's" : "women's"} scorers in the list yet.`}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -9,7 +9,7 @@ function PointsTablePage() {
   const [points, setPoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [groupedData, setGroupedData] = useState({});
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("men");
 
   // Fetch initial data
   const fetchPoints = () => {
@@ -179,7 +179,6 @@ function PointsTablePage() {
           value={filter}
           onChange={setFilter}
           items={[
-            { key: "all", label: "All Categories", icon: "🏆", count: points.length },
             { key: "men", label: "Men's", icon: "🏒", count: points.filter((p) => p.category === "men").length },
             { key: "women", label: "Women's", icon: "🏑", count: points.filter((p) => p.category === "women").length },
           ]}
@@ -191,31 +190,37 @@ function PointsTablePage() {
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
             <p className="text-slate-400">No points data available yet.</p>
           </div>
+        ) : filter === "men" && (!groupedData.men || Object.keys(groupedData.men).length === 0) ? (
+          <div className="rounded-xl border border-slate-700 bg-slate-800 p-8 text-center">
+            <p className="text-slate-400">No men&apos;s group standings yet.</p>
+          </div>
+        ) : filter === "women" && (!groupedData.women || Object.keys(groupedData.women).length === 0) ? (
+          <div className="rounded-xl border border-slate-700 bg-slate-800 p-8 text-center">
+            <p className="text-slate-400">No women&apos;s group standings yet.</p>
+          </div>
         ) : (
           <div className="space-y-8">
-            {/* Men's Category */}
-            {(filter === "all" || filter === "men") && groupedData.men && Object.keys(groupedData.men).length > 0 && (
+            {filter === "men" && groupedData.men && Object.keys(groupedData.men).length > 0 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-blue-400 sm:text-3xl flex items-center gap-2">
-                  <span>♂</span> Men's Category
+                  <span>♂</span> Men&apos;s Category
                 </h2>
                 <div className="grid gap-6 lg:grid-cols-2">
                   {Object.entries(groupedData.men).map(([groupName, teams]) =>
-                    renderTable(teams, groupName, 'men')
+                    renderTable(teams, groupName, "men")
                   )}
                 </div>
               </div>
             )}
 
-            {/* Women's Category */}
-            {(filter === "all" || filter === "women") && groupedData.women && Object.keys(groupedData.women).length > 0 && (
+            {filter === "women" && groupedData.women && Object.keys(groupedData.women).length > 0 && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-pink-400 sm:text-3xl flex items-center gap-2">
-                  <span>♀</span> Women's Category
+                  <span>♀</span> Women&apos;s Category
                 </h2>
                 <div className="grid gap-6 lg:grid-cols-2">
                   {Object.entries(groupedData.women).map(([groupName, teams]) =>
-                    renderTable(teams, groupName, 'women')
+                    renderTable(teams, groupName, "women")
                   )}
                 </div>
               </div>
