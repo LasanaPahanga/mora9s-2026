@@ -41,7 +41,7 @@ jobs:
             if pm2 describe mora9s-user >/dev/null 2>&1; then
               pm2 restart mora9s-user mora9s-admin --update-env
             else
-              pm2 start user-mode/server/src/app.js --name mora9s-user --cwd "$D/user-mode/server"
-              pm2 start admin-mode/server/src/app.js --name mora9s-admin --cwd "$D/admin-mode/server"
+              pm2 start "$D/user-mode/server/src/app.js" --name mora9s-user --cwd "$D/user-mode/server"
+              pm2 start "$D/admin-mode/server/src/app.js" --name mora9s-admin --cwd "$D/admin-mode/server"
             fi
             pm2 save

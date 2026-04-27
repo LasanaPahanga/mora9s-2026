@@ -163,8 +163,9 @@ USER_SERVER_URL=https://api.mora9s.live
 
 ```bash
 cd /var/www/mora9s-2026
-pm2 start user-mode/server/src/app.js --name mora9s-user --cwd /var/www/mora9s-2026/user-mode/server
-pm2 start admin-mode/server/src/app.js --name mora9s-admin --cwd /var/www/mora9s-2026/admin-mode/server
+# Use absolute paths for the script (PM2 can double the path if you use user-mode/server/... with --cwd)
+pm2 start /var/www/mora9s-2026/user-mode/server/src/app.js --name mora9s-user --cwd /var/www/mora9s-2026/user-mode/server
+pm2 start /var/www/mora9s-2026/admin-mode/server/src/app.js --name mora9s-admin --cwd /var/www/mora9s-2026/admin-mode/server
 pm2 save
 pm2 startup
 ```
