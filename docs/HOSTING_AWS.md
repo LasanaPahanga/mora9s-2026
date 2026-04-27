@@ -256,6 +256,74 @@ This repository includes **`.github/workflows/deploy-aws-backend.yml`**. It SSHs
 
 The server must already have a clone at **`DEPLOY_PATH`** in that workflow and `git` able to `pull`.
 
+### 10.1 Full steps (beginner)
+
+**A — On the EC2 server (one time)**
+
+1. The repo should already be at **`/var/www/mora9s-2026`** (same as `DEPLOY_PATH` in the workflow). If not, clone there:
+
+   ```bash
+   sudo mkdir -p /var/www && sudo chown ubuntu:ubuntu /var/www
+   cd /var/www
+   git clone https://github.com/LasanaPahanga/mora9s-2026.git mora9s-2026
+   ```
+
+2. **Remote must be your GitHub repo** and **branch `main`:**
+
+   ```bash
+   cd /var/www/mora9s-2026
+   git remote -v
+   ```
+
+   You should see `origin` → `https://github.com/LasanaPahanga/mora9s-2026.git` (or the SSH form). This repo is **public**, so `git pull origin main` over **HTTPS** usually works **without** a token. If the repo is **private**, configure access (e.g. [GitHub personal access token](https://github.com/settings/tokens) in `git credential` or a **deploy key** with read access).
+
+3. **Test a pull** as `ubuntu` (the same user GitHub Actions will use when SSHing):
+
+   ```bash
+   cd /var/www/mora9s-2026
+   git pull origin main
+   ```
+
+   If this fails, fix it before using Actions (wrong remote, private repo auth, or permissions).
+
+4. **PM2 process names** must be **`mora9s-user`** and **`mora9s-admin`** (as in §6.3) — the workflow **restarts** them by name.
+
+5. The **EC2 security group** must allow **inbound SSH (port 22)** from **GitHub Actions runners** — the internet range is large, so in practice people use **0.0.0.0/0** for port 22 (less safe) or **only their IP** for manual SSH, which **blocks** the GitHub Action. For a simple setup, either:
+   - temporarily open **22** to **0.0.0.0** (tighten later), or  
+   - use a **self-hosted runner** on EC2, or  
+   - deploy only from your IP by running workflows manually with a runner that can reach the box — the doc’s workflow expects **GitHub’s cloud** to connect to your instance on **:22** — so **SSH from the internet to EC2:22** must be allowed (often `0.0.0.0/0` for 22, or a fixed IP if you use a jump host).
+
+   **Clarify:** The default **appleboy/ssh-action** runs on **GitHub-hosted** `ubuntu-latest`; it connects **out** to your **public EC2 IP on port 22**. So the EC2 security group for this instance must allow **TCP 22** from **0.0.0.0/0** (or GitHub’s IP ranges if you use an allow list — more advanced). If your group only has “My IP”, the workflow will **timeout**.
+
+**B — In GitHub (your repository**
+
+1. Open **`https://github.com/LasanaPahanga/mora9s-2026`** (or your repo).
+2. **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
+3. Add three **secrets** (names must match **exactly**):
+
+   | Name | Value |
+   |------|--------|
+   | `EC2_HOST` | Public IPv4 of the EC2 (e.g. `51.21.170.0`) or a DNS name that resolves to it |
+   | `EC2_USER` | `ubuntu` (default Ubuntu AMI user) |
+   | `EC2_SSH_KEY` | **Entire** contents of the **`.pem`** file you use to SSH, including the lines `-----BEGIN ...-----` and `-----END ...-----` |
+
+4. If your clone path is **not** `/var/www/mora9s-2026`, change **`DEPLOY_PATH`** at the top of **`.github/workflows/deploy-aws-backend.yml`** in the repo, commit, and push.
+
+**C — How the workflow runs**
+
+- On **push to `main`** that changes `user-mode/server/**`, `admin-mode/server/**`, or the workflow file itself.
+- Or manually: **Actions** tab → **Deploy backend to AWS EC2** → **Run workflow**.
+
+**D — Verify**
+
+1. Push a small change to a server file (or use **Run workflow**).
+2. Open **Actions** → select the run → it should be **green**.
+3. On the server: `cd /var/www/mora9s-2026 && git log -1` should show the new commit, and `pm2 list` should show both apps **online** after a restart.
+
+**E — Vercel note**
+
+This workflow only updates **backends** on EC2. **Frontends** on Vercel are deployed separately (Vercel Git integration or **`.github/workflows/deploy-vercel-frontends.yml`** with Vercel token secrets).
+
 ---
 
 ## 11. Checklist (AWS)
