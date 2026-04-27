@@ -9,9 +9,9 @@ import TopScorers from "./pages/TopScorers.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <Navbar />
-      <main>
+      <main className="min-w-0">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/teams" element={<Teams />} />

@@ -84,9 +84,9 @@ function ImageSlider() {
   };
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-2xl shadow-2xl">
+    <div className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-xl sm:rounded-2xl shadow-2xl">
       {/* Slider Container */}
-      <div className="relative h-[400px] md:h-[500px]">
+      <div className="relative h-[min(45vh,280px)] sm:h-[min(50vh,380px)] md:h-[500px]">
         {slides.map((slide, index) => (
           <div
             key={index}
@@ -105,11 +105,11 @@ function ImageSlider() {
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent"></div>
             
             {/* Slide Text Overlay */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
-              <h3 className="text-3xl md:text-5xl font-bold text-white mb-3 drop-shadow-2xl">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-3 sm:px-4 z-10">
+              <h3 className="text-lg sm:text-3xl md:text-5xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl leading-tight">
                 {slide.title}
               </h3>
-              <p className="text-lg md:text-xl text-slate-200 max-w-2xl drop-shadow-lg">
+              <p className="text-sm sm:text-lg md:text-xl text-slate-200 max-w-2xl drop-shadow-lg">
                 {slide.subtitle}
               </p>
             </div>

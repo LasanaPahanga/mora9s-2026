@@ -25,13 +25,13 @@ function Navbar() {
             <img 
               src="/assets/logo.png" 
               alt="Mora 9s Logo" 
-              className="h-12 w-12 object-contain transition-transform group-hover:scale-110"
+              className="h-9 w-9 sm:h-12 sm:w-12 shrink-0 object-contain transition-transform group-hover:scale-110"
             />
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:to-cyan-300 transition-all">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent group-hover:from-emerald-300 group-hover:to-cyan-300 transition-all truncate max-w-[10rem] sm:max-w-none">
                 Mora 9s 2026
               </h1>
-              <p className="text-[10px] text-slate-400 -mt-1">Hockey Tournament</p>
+              <p className="text-[10px] text-slate-400 -mt-1 hidden sm:block">Hockey Tournament</p>
             </div>
           </Link>
 
