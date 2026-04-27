@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
+import AdminTableScroll from "../components/AdminTableScroll.jsx";
 
 const API_BASE = import.meta.env.VITE_ADMIN_API || "http://localhost:5000";
 
@@ -418,7 +419,8 @@ function ManageResults() {
           <h2 className="font-semibold text-lg">Recorded results</h2>
           {loading && <span className="text-xs text-slate-400">Loading…</span>}
         </div>
-        <table className="min-w-full text-sm border border-slate-700">
+        <AdminTableScroll>
+        <table className="w-full min-w-[64rem] text-sm border border-slate-700">
           <thead className="bg-slate-900 text-slate-300">
             <tr>
               <th className="px-3 py-2 text-left">ID</th>
@@ -516,6 +518,7 @@ function ManageResults() {
             )}
           </tbody>
         </table>
+        </AdminTableScroll>
       </div>
     </div>
   );
