@@ -1,6 +1,7 @@
 # Deploy user + admin Vite apps to Vercel (two separate Vercel projects).
-# Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN
-# Set VITE_API_URL and VITE_ADMIN_API in each Vercel project (not in GitHub).
+# Required repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN
+# How to set them: docs/HOSTING_VERCEL.md → "GitHub Actions (token deploy)"
+# VITE_API_URL and VITE_ADMIN_API belong in each Vercel project (not in GitHub).
 
 name: Deploy frontends to Vercel
 
@@ -15,7 +16,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Vercel GitHub secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID_USER: ${{ secrets.VERCEL_PROJECT_ID_USER }}
+          VERCEL_PROJECT_ID_ADMIN: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
+        run: |
+          ok=0
+          need() {
+            name="$1"
+            value="$2"
+            if [ -z "$value" ]; then
+              echo "::error::Repository secret $name is missing or empty. Add it under Settings → Secrets and variables → Actions. See docs/HOSTING_VERCEL.md (section 7.1 GitHub Actions token deploy)."
+              ok=1
+            fi
+          }
+          need VERCEL_TOKEN "$VERCEL_TOKEN"
+          need VERCEL_ORG_ID "$VERCEL_ORG_ID"
+          need VERCEL_PROJECT_ID_USER "$VERCEL_PROJECT_ID_USER"
+          need VERCEL_PROJECT_ID_ADMIN "$VERCEL_PROJECT_ID_ADMIN"
+          exit $ok
+
   deploy-user:
+    needs: preflight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,6 +58,7 @@ jobs:
           vercel-args: "--prod"
 
   deploy-admin:
+    needs: preflight
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

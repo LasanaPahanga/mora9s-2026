@@ -161,7 +161,32 @@ Vite **embeds** env vars when it **builds**. If you change `VITE_API_URL` or `VI
 1. In each Vercel project, confirm **Settings → Git** has the correct **repository** and **Production Branch** = `main`.
 2. Every push to `main` (that Vercel watches) can trigger a new production build — depending on your “Ignored Build Step” settings.
 
-**Alternative:** this repo can use **GitHub Actions** to deploy (`.github/workflows/deploy-vercel-frontends.yml`) with a Vercel token — optional; the dashboard “Import Git” method is enough for most beginners.
+**Alternative (this repo’s workflow):** [§7.1](#71-github-actions-token-deploy) uses **GitHub Actions** (`.github/workflows/deploy-vercel-frontends.yml`) with a **Vercel token** and project IDs. If you do **not** add those **repository secrets**, that workflow will fail (for example: `vercel-token` not supplied). For a simpler path, use **only** Vercel’s **Import Git** in the dashboard and you can **disable** or ignore the GitHub Action.
+
+### 7.1 GitHub Actions (token deploy)
+
+If you want `Deploy frontends to Vercel` in GitHub Actions to succeed, add these **Repository secrets** (GitHub: **Settings → Secrets and variables → Actions → New repository secret**). Names must match **exactly**.
+
+| Secret | What it is | How to get it |
+|--------|--------------|---------------|
+| `VERCEL_TOKEN` | API token for the Vercel account or team that owns the projects | [vercel.com/account/tokens](https://vercel.com/account/tokens) → **Create** — copy the token once (it is shown only at creation). |
+| `VERCEL_ORG_ID` | Team / personal account ID in Vercel (sometimes called *Team ID* or *orgId*) | After `npx vercel link` in a linked project folder, open **`.vercel/project.json`**: use the `"orgId"` value. Or: Vercel dashboard → the **scope** (team) that owns the project; **Team Settings** → **General** often shows an ID, or it appears in URLs/API responses. The value usually looks like `team_…` for teams. |
+| `VERCEL_PROJECT_ID_USER` | The **user** project’s Vercel **Project ID** | Vercel → **user** app project → **Settings → General** → **Project ID**. Same as `"projectId"` in `user-mode/client/.vercel/project.json` if you linked that folder. |
+| `VERCEL_PROJECT_ID_ADMIN` | The **admin** project’s **Project ID** | Same as above for the **admin** project / `admin-mode/client` |
+
+**Local link (handy to fill `orgId` + `projectId`):**
+
+```bash
+cd user-mode/client
+npx vercel link
+# repeat for admin-mode/client
+cat user-mode/client/.vercel/project.json
+cat admin-mode/client/.vercel/project.json
+```
+
+Use the same **Vercel account/team** for both projects so one `VERCEL_ORG_ID` and one `VERCEL_TOKEN` apply to both `VERCEL_PROJECT_ID_*` values.
+
+After the secrets are saved, re-run the failed workflow ( **Actions** → the workflow → **Re-run all jobs** ) or push a small change under `user-mode/client` or `admin-mode/client`.
 
 ---
 
@@ -183,6 +208,7 @@ Vite **embeds** env vars when it **builds**. If you change `VITE_API_URL` or `VI
 | **White screen on refresh** for `/something` | Keep **`vercel.json`** rewrites to `/index.html`. |
 | **API errors / CORS in browser** | The browser calls whatever you put in `VITE_API_URL` / `VITE_ADMIN_API`. Fix the **API** host and CORS on the **server** (see [HOSTING_INTEGRATION.md](HOSTING_INTEGRATION.md)). |
 | **“Invalid environment variable”** | Names must be exactly **`VITE_API_URL`** and **`VITE_ADMIN_API`**. |
+| **GitHub Actions: `vercel-token` not supplied** / `Input required and not supplied: vercel-token` | Add **`VERCEL_TOKEN`** (and the other [§7.1](#71-github-actions-token-deploy) secrets) in the **GitHub** repo, not only in Vercel. The workflow reads **`Settings → Secrets and variables → Actions`**. |
 
 ---
 
