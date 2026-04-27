@@ -25,7 +25,7 @@ A full-stack web platform for running the **Mora 9s** field hockey tournament: a
                     └───────────────┘
 ```
 
-In production, frontends are typically on **Vercel** and APIs + database on a host such as **AWS EC2**—see [docs/HOSTING.md](docs/HOSTING.md) for the full picture and step-by-step guides.
+In production, frontends are often on **Vercel** and APIs + database on a host such as **AWS EC2** (Nginx, HTTPS, PM2). Align `VITE_*` env vars with your API URLs and configure CORS on the servers for your domains.
 
 ---
 
@@ -49,7 +49,6 @@ In production, frontends are typically on **Vercel** and APIs + database on a ho
 | `user-mode/server` | REST + Socket.IO for the public app |
 | `admin-mode/client` | Vite + React admin dashboard |
 | `admin-mode/server` | REST + auth for the admin app |
-| `docs/` | Hosting and integration documentation |
 | `.github/workflows/` | CI: Vercel frontends, optional AWS backend deploy |
 
 ---
@@ -135,15 +134,13 @@ cd user-mode/client && npm run build    # output: dist/
 cd admin-mode/client && npm run build
 ```
 
-Upload or connect CI to host `dist/` (see [docs/HOSTING_VERCEL.md](docs/HOSTING_VERCEL.md)). APIs are deployed separately ([docs/HOSTING_AWS.md](docs/HOSTING_AWS.md)); DNS and env alignment are covered in [docs/HOSTING_INTEGRATION.md](docs/HOSTING_INTEGRATION.md).
+Upload or connect CI (e.g. GitHub Actions in this repo) to build and deploy `dist/`. Configure Vercel **root directories** (`user-mode/client` vs `admin-mode/client`), production **branch** `main`, and repository **secrets** if you use the included Vercel workflow. Deploy APIs separately (Node + process manager + reverse proxy + TLS) and point `VITE_API_URL` / `VITE_ADMIN_API` at those HTTPS bases.
 
 ---
 
-## Further reading
+## Real-time updates
 
-- **[docs/HOSTING.md](docs/HOSTING.md)** — Index: Vercel, AWS, integration, CI
-- **[WEBSOCKET_SETUP.md](WEBSOCKET_SETUP.md)** — WebSocket / real-time notes (if present in repo)
-- **[REALTIME_UPDATES_SUMMARY.md](REALTIME_UPDATES_SUMMARY.md)** — Real-time behavior overview (if present in repo)
+The user server emits Socket.IO events so the public site can refresh lists when data changes. Ensure production URLs use **HTTPS** and **wss://** where applicable, and that proxies pass WebSocket upgrades.
 
 ---
 

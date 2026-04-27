@@ -39,17 +39,18 @@ coverage/
 .cache/
 *.pem
 
-# Vercel CLI (local `vercel link` / project settings — can contain sensitive ids)
+# Vercel CLI (local `vercel link` — can contain sensitive ids)
 **/.vercel/
 
 # ---------------------------------------------------------------------------
-# Documentation: `docs/*.md` and top-level `*.md` in this repo are versioned.
-# Do not add a plain `docs/` or `*.md` rule here — that would block hosting docs.
-# Below: local-only / draft sidecar files (optional; safe to add on your machine):
+# Docs & extra markdown: not committed. Keep one root README.md in the repo.
+# (Optional: keep a local `docs/` folder or host notes in a wiki.)
 # ---------------------------------------------------------------------------
+docs/
+REALTIME_UPDATES_SUMMARY.md
+WEBSOCKET_SETUP.md
+
+# Local markdown sidecars / backups
 **/*.md.local
 **/*.md.bak
 **/*~.md
-docs/**/.DS_Store
-docs/_local/
-docs/_drafts/

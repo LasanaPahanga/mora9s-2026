@@ -1,6 +1,6 @@
 # Deploy user + admin Vite apps to Vercel (two separate Vercel projects).
 # Required repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN
-# How to set them: docs/HOSTING_VERCEL.md → "GitHub Actions (token deploy)"
+# Set secrets: Vercel account → Tokens; each project → Settings → General → Project ID; team orgId.
 # VITE_API_URL and VITE_ADMIN_API belong in each Vercel project (not in GitHub).
 # Run from repo root (.) so Vercel “Root Directory” in each project (e.g. user-mode/client) is
 # not doubled with working-directory in this workflow.
@@ -33,7 +33,7 @@ jobs:
             name="$1"
             value="$2"
             if [ -z "$value" ]; then
-              echo "::error::Repository secret $name is missing or empty. Add it under Settings → Secrets and variables → Actions. See docs/HOSTING_VERCEL.md (section 7.1 GitHub Actions token deploy)."
+              echo "::error::Repository secret $name is missing or empty. Add it under Settings → Secrets and variables → Actions (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN)."
               ok=1
             fi
           }

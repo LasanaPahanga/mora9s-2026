@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 
 env:
-  # Must match the clone path on the server (see docs/HOSTING.md)
+  # Must match the git clone path on the EC2 server
   DEPLOY_PATH: /var/www/mora9s-2026
 
 jobs:
