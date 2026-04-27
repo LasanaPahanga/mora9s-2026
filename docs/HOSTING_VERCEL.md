@@ -186,6 +186,8 @@ cat admin-mode/client/.vercel/project.json
 
 Use the same **Vercel account/team** for both projects so one `VERCEL_ORG_ID` and one `VERCEL_TOKEN` apply to both `VERCEL_PROJECT_ID_*` values.
 
+**GitHub Actions and Root Directory:** In each Vercel project, **Settings → General → Root Directory** should still be **`user-mode/client`** (user app) and **`admin-mode/client`** (admin app), as in §3 and §4. The workflow in this repo runs the CLI from the **repository root** (`.`) so that path is **not** combined twice with a `working-directory` in Actions (which would break with `…/user-mode/client/user-mode/client`).
+
 After the secrets are saved, re-run the failed workflow ( **Actions** → the workflow → **Re-run all jobs** ) or push a small change under `user-mode/client` or `admin-mode/client`.
 
 ---
@@ -210,6 +212,7 @@ After the secrets are saved, re-run the failed workflow ( **Actions** → the wo
 | **“Invalid environment variable”** | Names must be exactly **`VITE_API_URL`** and **`VITE_ADMIN_API`**. |
 | **GitHub Actions: `vercel-token` not supplied** / `Input required and not supplied: vercel-token` | Add **`VERCEL_TOKEN`** (and the other [§7.1](#71-github-actions-token-deploy) secrets) in the **GitHub** repo, not only in Vercel. The workflow reads **`Settings → Secrets and variables → Actions`**. |
 | **GitHub Actions: `Your Vercel CLI version is outdated...` (Vercel API / CLI)** | The workflow sets **`vercel-version`** in `.github/workflows/deploy-vercel-frontends.yml` so GitHub does not use the action’s old default (`vercel@25`). Bump the pin to a current [npm `vercel` package](https://www.npmjs.com/package/vercel) version (e.g. `npm view vercel version`) if the error returns. |
+| **GitHub Actions: path `.../user-mode/client/user-mode/client` does not exist** | Vercel’s project **Root Directory** and the Action’s `working-directory` were both set to the same folder, so the path was **doubled**. This repo’s workflow uses **repo root** (`.`) in Actions; keep **Root Directory** in each Vercel project as `user-mode/client` / `admin-mode/client` ([§7.1](#71-github-actions-token-deploy)). |
 
 ---
 

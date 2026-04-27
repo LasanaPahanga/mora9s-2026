@@ -2,6 +2,8 @@
 # Required repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID_USER, VERCEL_PROJECT_ID_ADMIN
 # How to set them: docs/HOSTING_VERCEL.md → "GitHub Actions (token deploy)"
 # VITE_API_URL and VITE_ADMIN_API belong in each Vercel project (not in GitHub).
+# Run from repo root (.) so Vercel “Root Directory” in each project (e.g. user-mode/client) is
+# not doubled with working-directory in this workflow.
 
 name: Deploy frontends to Vercel
 
@@ -56,7 +58,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_USER }}
-          working-directory: user-mode/client
+          working-directory: .
           vercel-args: "--prod"
 
   deploy-admin:
@@ -73,5 +75,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
-          working-directory: admin-mode/client
+          working-directory: .
           vercel-args: "--prod"
