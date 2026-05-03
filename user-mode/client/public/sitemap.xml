@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home Page — Highest Priority -->
+  <url>
+    <loc>https://www.mora9s.live/</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Matches Page — Updated frequently -->
+  <url>
+    <loc>https://www.mora9s.live/matches</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Results Page — Updated frequently -->
+  <url>
+    <loc>https://www.mora9s.live/results</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Points Table — Updated frequently -->
+  <url>
+    <loc>https://www.mora9s.live/points</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Teams Page -->
+  <url>
+    <loc>https://www.mora9s.live/teams</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Top Scorers Page -->
+  <url>
+    <loc>https://mora9s2026.vercel.app/top-scorers</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>

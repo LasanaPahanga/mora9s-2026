@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import useSocket from "../hooks/useSocket";
 import CategoryFilterTabs from "../components/CategoryFilterTabs";
+import SEO from "../components/SEO.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -134,6 +135,11 @@ function Results() {
 
   return (
     <div className="py-8">
+      <SEO
+        title="Match Results & Scores"
+        description="Check all match results and scores for Mora 9s Hockey Tournament 2026. Real-time updates for men's and women's categories."
+        path="/results"
+      />
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">

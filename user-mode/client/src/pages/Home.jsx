@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ImageSlider from "../components/ImageSlider.jsx";
+import SEO from "../components/SEO.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -77,6 +78,11 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <SEO
+        title="Mora 9s Hockey Tournament 2026"
+        description="Official website for Mora 9s Hockey Tournament 2026. Live scores, match results, team standings, and top scorers. Your official source for all tournament updates."
+        path="/"
+      />
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMxZTI5M2IiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6bTAtMjBjMC0yLjIwOS0xLjc5MS00LTQtNHMtNCAxLjc5MS00IDQgMS43OTEgNCA0IDQgNC0xLjc5MSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
@@ -93,6 +99,7 @@ function Home() {
                 src="/assets/logo.png" 
                 alt="Mora 9s Tournament Logo" 
                 className="h-24 sm:h-32 md:h-40 w-auto mx-auto object-contain animate-pulse"
+                fetchpriority="high"
               />
             </div>
             
