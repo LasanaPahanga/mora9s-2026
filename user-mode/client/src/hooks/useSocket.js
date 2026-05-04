@@ -1,9 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
-
-let socket = null;
+import { connectUserSocket } from '../socket/userSocket.js';
 
 const useSocket = (event, callback) => {
   const savedCallback = useRef();
@@ -14,28 +10,8 @@ const useSocket = (event, callback) => {
   }, [callback]);
 
   useEffect(() => {
-    // Initialize socket connection if not already connected
-    if (!socket) {
-      socket = io(API_URL, {
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionAttempts: 10
-      });
+    const socket = connectUserSocket();
 
-      socket.on('connect', () => {
-        console.log('✅ Connected to server for real-time updates');
-      });
-
-      socket.on('disconnect', () => {
-        console.log('❌ Disconnected from server');
-      });
-
-      socket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error);
-      });
-    }
-
-    // Set up the event listener
     const eventHandler = (...args) => {
       if (savedCallback.current) {
         savedCallback.current(...args);
@@ -54,7 +30,7 @@ const useSocket = (event, callback) => {
     };
   }, [event]);
 
-  return socket;
+  return connectUserSocket();
 };
 
 export default useSocket;

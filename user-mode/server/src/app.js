@@ -38,18 +38,32 @@ app.get("/", (req, res) => {
   res.json({ message: "Mora 9s 2026 User API" });
 });
 
+const PUBLIC_SITE_ROOM = "public_site";
+
+function broadcastPublicViewerCount() {
+  const room = io.sockets.adapter.rooms.get(PUBLIC_SITE_ROOM);
+  const n = room ? room.size : 0;
+  io.emit("viewer_count", n);
+}
+
 // Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log("✅ Client connected:", socket.id);
-  
+
+  socket.on("join_public_site", () => {
+    socket.join(PUBLIC_SITE_ROOM);
+    broadcastPublicViewerCount();
+  });
+
   // Listen for admin updates and broadcast to all clients
   socket.on("admin_update", (data) => {
     console.log(`📡 Broadcasting ${data.event} to all clients`);
     io.emit(data.event, data.data);
   });
-  
+
   socket.on("disconnect", () => {
     console.log("❌ Client disconnected:", socket.id);
+    setImmediate(() => broadcastPublicViewerCount());
   });
 });
 
