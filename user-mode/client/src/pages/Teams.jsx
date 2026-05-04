@@ -54,6 +54,29 @@ function Teams() {
 
   const filteredTeams = teams.filter((team) => team.category === filter);
 
+  // Helper to count unique universities per category
+  const getUniqueCount = (category) => {
+    const categoryTeams = teams.filter(t => t.category === category);
+    const uniqueNames = new Set(categoryTeams.map(t => t.name.replace(/\s+[A-Z]$/, '').trim()));
+    return uniqueNames.size;
+  };
+
+  // Deduplicate teams by base name (e.g., "Mora A" and "Mora B" -> "Mora")
+  const uniqueUniversities = [];
+  const seenUniversities = new Set();
+  
+  filteredTeams.forEach((t) => {
+    // Extract base name by removing trailing single letters like " A" or " B"
+    const baseName = t.name.replace(/\s+[A-Z]$/, '').trim();
+    if (!seenUniversities.has(baseName)) {
+      seenUniversities.add(baseName);
+      uniqueUniversities.push({
+        ...t,
+        displayName: baseName
+      });
+    }
+  });
+
   // Function to get university logo based on team name
   const getTeamLogo = (teamName) => {
     const logoMap = {
@@ -91,8 +114,8 @@ function Teams() {
           value={filter}
           onChange={setFilter}
           items={[
-            { key: "men", label: "Men's", icon: "🏒", count: teams.filter((t) => t.category === "men").length },
-            { key: "women", label: "Women's", icon: "🏑", count: teams.filter((t) => t.category === "women").length },
+            { key: "men", label: "Men's", icon: "🏒", count: getUniqueCount("men") },
+            { key: "women", label: "Women's", icon: "🏑", count: getUniqueCount("women") },
           ]}
         />
 
@@ -102,21 +125,21 @@ function Teams() {
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
             <p className="text-slate-400">No teams available yet.</p>
           </div>
-        ) : filteredTeams.length === 0 ? (
+        ) : uniqueUniversities.length === 0 ? (
           <div className="bg-slate-800 rounded-xl p-8 text-center border border-slate-700">
             <p className="text-slate-400">No {filter === "men" ? "men's" : "women's"} teams in this list yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredTeams.map((t) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            {uniqueUniversities.map((uni) => (
               <div
-                key={t.id}
-                className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/10 text-center"
+                key={uni.displayName}
+                className="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-cyan-500 transition-all hover:shadow-xl hover:shadow-cyan-500/10 text-center flex flex-col items-center justify-center"
               >
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden bg-white p-2 shadow-lg">
+                <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-white p-3 shadow-lg hover:scale-105 transition-transform duration-300">
                   <img 
-                    src={`/assets/uni_logo/${getTeamLogo(t.name)}`}
-                    alt={`${t.name} logo`}
+                    src={`/assets/uni_logo/${getTeamLogo(uni.name)}`}
+                    alt={`${uni.displayName} logo`}
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       // Fallback to letter avatar if logo fails to load
@@ -124,16 +147,11 @@ function Teams() {
                       e.target.nextSibling.style.display = 'flex';
                     }}
                   />
-                  <div className="w-full h-full bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full hidden items-center justify-center text-2xl font-bold text-white">
-                    {t.name.charAt(0)}
+                  <div className="w-full h-full bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full hidden items-center justify-center text-3xl font-bold text-white">
+                    {uni.displayName.charAt(0)}
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">{t.name}</h2>
-                {t.group_id && (
-                  <span className="inline-block bg-slate-700 px-3 py-1 rounded-full text-sm text-slate-300">
-                    Group {t.group_id}
-                  </span>
-                )}
+                <h2 className="text-xl font-bold text-white">{uni.displayName}</h2>
               </div>
             ))}
           </div>
