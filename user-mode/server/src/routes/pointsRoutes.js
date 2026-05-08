@@ -109,13 +109,16 @@ router.get("/", async (req, res) => {
       team.goal_difference = team.goals_for - team.goals_against;
     });
     
-    // Sort by: points DESC, goal_difference DESC, penalty_points DESC (less negative = better)
+    // Sort by: points DESC, goal_difference DESC, won DESC, penalty_points DESC (less negative = better)
     const sortedTeams = Object.values(teamStats).sort((a, b) => {
       if (b.points !== a.points) {
         return b.points - a.points;
       }
       if (b.goal_difference !== a.goal_difference) {
         return b.goal_difference - a.goal_difference;
+      }
+      if (b.won !== a.won) {
+        return b.won - a.won;
       }
       // For penalty points: -1 is better than -2, so higher (less negative) is better
       return b.penalty_points - a.penalty_points;
