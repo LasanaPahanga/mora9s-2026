@@ -17,9 +17,14 @@ const LOGO_MAP = {
   Colombo: "pera.png",
 };
 
+/** Strip squad suffix " A" / " B" so "SLIIT A" resolves like "SLIIT". */
+function baseUniversityName(teamName) {
+  return String(teamName).trim().replace(/\s+[A-Z]$/, "").trim();
+}
+
 export function resolveTeamLogoFile(teamName) {
   if (!teamName) return "mora.png";
-  const key = String(teamName).trim();
+  const key = baseUniversityName(teamName);
   if (LOGO_MAP[key]) return LOGO_MAP[key];
 
   const slug = key.toLowerCase().replace(/[^a-z0-9]/g, "");

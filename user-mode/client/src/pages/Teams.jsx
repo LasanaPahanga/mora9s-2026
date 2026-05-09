@@ -121,7 +121,7 @@ function Teams() {
               >
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-white p-3 shadow-lg hover:scale-105 transition-transform duration-300">
                   <img 
-                    src={`/assets/uni_logo/${resolveTeamLogoFile(uni.name)}`}
+                    src={`/assets/uni_logo/${resolveTeamLogoFile(uni.displayName)}`}
                     alt={`${uni.displayName} logo`}
                     className="w-full h-full object-contain"
                     onError={(e) => {
