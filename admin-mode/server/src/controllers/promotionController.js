@@ -127,19 +127,25 @@ export const promoteGroupToSuper6 = async () => {
   }
 };
 
-// After match 44 (last men's super6 match): Set semi-final match rows from Super 6 standings
+// After all men's Super 6 fixtures have recorded results (typically matches 31,32,37,38,43,44):
+// Set semi-final rows from Super 6 standings.
 // MSF1 = Super A winner vs Super B runner-up | MSF2 = Super A runner-up vs Super B winner
-// (Semis must NOT reuse Super 6 team IDs 13–18 — those only reflect pool placeholders renamed after group stage.)
+// (Semis must NOT reuse bracket placeholders 29–32 — real qualifiers use Super 6 team IDs 13–18.)
 export const promoteSuper6ToSemiFinals = async () => {
   try {
     const pool = getPool();
 
-    const [unfinished] = await pool.query(
-      "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='super6' AND NOT (status <=> 'finished')"
+    const [missingResults] = await pool.query(
+      `SELECT m.id FROM matches m
+       WHERE m.category = 'men' AND m.match_type = 'super6'
+       AND NOT EXISTS (SELECT 1 FROM results r WHERE r.match_id = m.id)
+       ORDER BY m.id`
     );
-    if (unfinished[0].cnt > 0) {
-      console.log(`[promoteSuper6ToSemiFinals] ${unfinished[0].cnt} super6 matches still pending, skipping promotion`);
-      return false;
+    if (missingResults.length > 0) {
+      const ids = missingResults.map((row) => row.id);
+      const msg = `Men's Super 6 is incomplete: no result row for match id(s) ${ids.join(", ")}. Record scores for every men's Super 6 fixture (schedule uses six matches, often ids 31, 32, 37, 38, 43, 44).`;
+      console.log(`[promoteSuper6ToSemiFinals] ${msg}`);
+      return { ok: false, pendingMatchIds: ids, message: msg };
     }
 
     const [groups] = await pool.query(
@@ -253,16 +259,16 @@ export const promoteSuper6ToSemiFinals = async () => {
     const sbRunner = rankedB[1].team_id;
 
     const [u47] = await pool.query(
-      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 47 AND category = ? AND match_type = ?",
-      [saWinner, sbRunner, "men", "semi_final"]
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 47 AND category = 'men'",
+      [saWinner, sbRunner]
     );
     const [u48] = await pool.query(
-      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 48 AND category = ? AND match_type = ?",
-      [saRunner, sbWinner, "men", "semi_final"]
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 48 AND category = 'men'",
+      [saRunner, sbWinner]
     );
     if (!u47.affectedRows || !u48.affectedRows) {
       console.error(
-        "[promoteSuper6ToSemiFinals] Semi UPDATE missed rows — check match ids 47/48 (category men, semi_final).",
+        "[promoteSuper6ToSemiFinals] Semi UPDATE missed rows — check matches 47/48 exist with category men.",
         { affected47: u47.affectedRows, affected48: u48.affectedRows }
       );
     }
@@ -276,10 +282,10 @@ export const promoteSuper6ToSemiFinals = async () => {
     });
     emitToUsers("match_updated", { id: 47 });
     emitToUsers("match_updated", { id: 48 });
-    return true;
+    return { ok: true };
   } catch (err) {
     console.error("[promoteSuper6ToSemiFinals] Error:", err);
-    return false;
+    return { ok: false, message: err.message || String(err) };
   }
 };
 
@@ -543,6 +549,14 @@ export const promoteMenSemiToFinals = async () => {
   }
 };
 
+/** Normalize MySQL ENUM / driver quirks for comparisons */
+function normStage(val) {
+  return String(val ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/-/g, "_");
+}
+
 // Auto-promotion after a match is marked finished (each promotion checks prerequisites internally)
 export const triggerAutoPromotion = async (finishedMatchId) => {
   const pool = getPool();
@@ -553,19 +567,22 @@ export const triggerAutoPromotion = async (finishedMatchId) => {
   const m = rows[0];
   if (!m) return;
 
-  if (m.category === "men" && m.match_type === "group_stage") {
+  const cat = normStage(m.category);
+  const mt = normStage(m.match_type);
+
+  if (cat === "men" && mt === "group_stage") {
     await promoteGroupToSuper6();
   }
-  if (m.category === "women" && m.match_type === "group_stage") {
+  if (cat === "women" && mt === "group_stage") {
     await promoteWomenGroupToSemiFinals();
   }
-  if (m.category === "men" && m.match_type === "super6") {
+  if (cat === "men" && mt === "super6") {
     await promoteSuper6ToSemiFinals();
   }
-  if (m.category === "women" && m.match_type === "semi_final") {
+  if (cat === "women" && mt === "semi_final") {
     await promoteWomenSemiToFinals();
   }
-  if (m.category === "men" && m.match_type === "semi_final") {
+  if (cat === "men" && mt === "semi_final") {
     await promoteMenSemiToFinals();
   }
 };

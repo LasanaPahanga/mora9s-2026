@@ -22,11 +22,14 @@ router.post('/group-to-super6', verifyAdminToken, async (req, res) => {
 // Manually trigger super6->semi-finals promotion for men
 router.post('/super6-to-semi', verifyAdminToken, async (req, res) => {
   try {
-    const success = await promoteSuper6ToSemiFinals();
-    if (success) {
+    const result = await promoteSuper6ToSemiFinals();
+    if (result.ok) {
       res.json({ message: 'Men super6 to semi-finals promotion complete' });
     } else {
-      res.status(400).json({ error: 'Promotion not yet available - some super6 matches still pending' });
+      res.status(400).json({
+        error: result.message || 'Promotion not yet available — men\'s Super 6 incomplete',
+        pendingMatchIds: result.pendingMatchIds ?? []
+      });
     }
   } catch (err) {
     console.error('Error promoting super6 to semi-finals', err);
