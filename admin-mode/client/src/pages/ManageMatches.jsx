@@ -1,7 +1,12 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import AdminTableScroll from "../components/AdminTableScroll.jsx";
+import {
+  FILTER_ALL,
+  rowMatchesCategory,
+  rowMatchesMatchType,
+} from "../utils/adminListFilters.js";
 
 const API_BASE = import.meta.env.VITE_ADMIN_API || "http://localhost:5000";
 
@@ -22,6 +27,18 @@ function ManageMatches() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState(FILTER_ALL);
+  const [matchTypeFilter, setMatchTypeFilter] = useState(FILTER_ALL);
+
+  const filteredMatches = useMemo(
+    () =>
+      matches.filter(
+        (m) =>
+          rowMatchesCategory(m.category, categoryFilter) &&
+          rowMatchesMatchType(m.match_type, matchTypeFilter)
+      ),
+    [matches, categoryFilter, matchTypeFilter]
+  );
 
   const authConfig = {
     headers: { Authorization: `Bearer ${token}` }
@@ -328,6 +345,35 @@ function ManageMatches() {
           <h2 className="font-semibold text-lg">Existing matches</h2>
           {loading && <span className="text-xs text-slate-400">Loading…</span>}
         </div>
+        <div className="flex flex-wrap items-end gap-3 mb-3">
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Category filter</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="min-w-[8rem] px-3 py-2 rounded bg-slate-900 text-white border border-slate-700 text-sm"
+            >
+              <option value={FILTER_ALL}>All</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Match type filter</label>
+            <select
+              value={matchTypeFilter}
+              onChange={(e) => setMatchTypeFilter(e.target.value)}
+              className="min-w-[10rem] px-3 py-2 rounded bg-slate-900 text-white border border-slate-700 text-sm"
+            >
+              <option value={FILTER_ALL}>All types</option>
+              <option value="group_stage">Group Stage</option>
+              <option value="super6">Super 6</option>
+              <option value="semi_final">Semi Final</option>
+              <option value="3rd_place">3rd Place</option>
+              <option value="final">Final</option>
+            </select>
+          </div>
+        </div>
         <AdminTableScroll>
         <table className="w-full min-w-[48rem] text-sm border border-slate-700">
           <thead className="bg-slate-900 text-slate-300">
@@ -343,7 +389,7 @@ function ManageMatches() {
             </tr>
           </thead>
           <tbody>
-            {matches.map((match) => (
+            {filteredMatches.map((match) => (
               <tr key={match.id} className="border-t border-slate-700">
                 <td className="px-3 py-2">{match.id}</td>
                 <td className="px-3 py-2">{match.group_name ?? "-"}</td>
@@ -391,13 +437,13 @@ function ManageMatches() {
                 </td>
               </tr>
             ))}
-            {matches.length === 0 && !loading && (
+            {filteredMatches.length === 0 && !loading && (
               <tr>
                 <td
                   colSpan={8}
                   className="px-3 py-4 text-center text-slate-400"
                 >
-                  No matches yet.
+                  {matches.length === 0 ? "No matches yet." : "No matches match these filters."}
                 </td>
               </tr>
             )}

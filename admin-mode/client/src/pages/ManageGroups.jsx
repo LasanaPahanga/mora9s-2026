@@ -1,7 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext.jsx";
 import AdminTableScroll from "../components/AdminTableScroll.jsx";
+import { FILTER_ALL, rowMatchesCategory } from "../utils/adminListFilters.js";
 
 const API_BASE = import.meta.env.VITE_ADMIN_API || "http://localhost:5000";
 
@@ -12,6 +13,12 @@ function ManageGroups() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(FILTER_ALL);
+
+  const filteredGroups = useMemo(
+    () => groups.filter((g) => rowMatchesCategory(g.category, categoryFilter)),
+    [groups, categoryFilter]
+  );
 
   const authConfig = {
     headers: { Authorization: `Bearer ${token}` }
@@ -139,6 +146,20 @@ function ManageGroups() {
           <h2 className="font-semibold text-lg">Existing groups</h2>
           {loading && <span className="text-xs text-slate-400">Loading…</span>}
         </div>
+        <div className="flex flex-wrap items-end gap-3 mb-3">
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Category filter</label>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="min-w-[8rem] px-3 py-2 rounded bg-slate-900 text-white border border-slate-700 text-sm"
+            >
+              <option value={FILTER_ALL}>All</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+            </select>
+          </div>
+        </div>
         <AdminTableScroll>
         <table className="w-full min-w-[36rem] text-sm border border-slate-700">
           <thead className="bg-slate-900 text-slate-300">
@@ -151,7 +172,7 @@ function ManageGroups() {
             </tr>
           </thead>
           <tbody>
-            {groups.map((group) => (
+            {filteredGroups.map((group) => (
               <tr key={group.id} className="border-t border-slate-700">
                 <td className="px-3 py-2">{group.id}</td>
                 <td className="px-3 py-2">{group.name}</td>
@@ -183,13 +204,13 @@ function ManageGroups() {
                 </td>
               </tr>
             ))}
-            {groups.length === 0 && !loading && (
+            {filteredGroups.length === 0 && !loading && (
               <tr>
                 <td
                   colSpan={5}
                   className="px-3 py-4 text-center text-slate-400"
                 >
-                  No groups yet.
+                  {groups.length === 0 ? "No groups yet." : "No groups match this filter."}
                 </td>
               </tr>
             )}
