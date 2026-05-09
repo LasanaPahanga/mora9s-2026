@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { PORT } from "./config/env.js";
+import { PORT, getAdminCorsOrigins } from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import teamsRoutes from "./routes/teamsRoutes.js";
 import groupsRoutes from "./routes/groupsRoutes.js";
@@ -14,7 +14,22 @@ import { connectToUserServer } from "./utils/socket.js";
 
 const app = express();
 
-app.use(cors());
+const adminCorsOrigins = getAdminCorsOrigins();
+const allowAnyOrigin = adminCorsOrigins.includes("*");
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (allowAnyOrigin) return callback(null, true);
+      if (!origin) return callback(null, true);
+      if (adminCorsOrigins.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+  })
+);
 app.use(express.json());
 
 app.use("/admin/auth", authRoutes);

@@ -13,3 +13,18 @@ export const DB_CONFIG = {
 
 export const JWT_SECRET = process.env.JWT_SECRET || "changeme-secret";
 export const JWT_EXPIRES_IN = "1d";
+
+/** Comma-separated origins for admin SPA (Vercel prod + local Vite). Override on EC2 if needed. */
+export function getAdminCorsOrigins() {
+  const raw = process.env.ADMIN_CORS_ORIGINS;
+  if (raw && raw.trim()) {
+    return raw.split(",").map((o) => o.trim()).filter(Boolean);
+  }
+  return [
+    "https://admin.mora9s.live",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+  ];
+}
