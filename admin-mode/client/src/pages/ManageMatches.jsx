@@ -69,8 +69,8 @@ function ManageMatches() {
 
   const validateForm = () => {
     const errs = {};
-    // Group is only required for Group Stage matches
-    if (!form.group_id && form.match_type === 'group_stage') {
+    // Group is required for Group Stage and Super 6 matches
+    if (!form.group_id && (form.match_type === 'group_stage' || form.match_type === 'super6')) {
       errs.group_id = "Required for Group Stage matches";
     }
     if (!form.team_1_id) errs.team_1_id = "Required";
@@ -291,6 +291,7 @@ function ManageMatches() {
             className="w-full px-3 py-2 rounded bg-slate-900 text-white border border-slate-700"
           >
             <option value="group_stage">Group Stage</option>
+            <option value="super6">Super 6</option>
             <option value="semi_final">Semi Final</option>
             <option value="3rd_place">3rd Place</option>
             <option value="final">Final</option>
@@ -353,12 +354,14 @@ function ManageMatches() {
                 <td className="px-3 py-2">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     match.match_type === 'group_stage' ? 'bg-blue-500 text-white' :
+                    match.match_type === 'super6' ? 'bg-cyan-500 text-white' :
                     match.match_type === 'semi_final' ? 'bg-orange-500 text-white' :
                     match.match_type === '3rd_place' ? 'bg-yellow-500 text-white' :
                     match.match_type === 'final' ? 'bg-red-500 text-white' :
                     'bg-slate-700 text-slate-300'
                   }`}>
                     {match.match_type === 'group_stage' ? 'Group Stage' :
+                     match.match_type === 'super6' ? 'Super 6' :
                      match.match_type === 'semi_final' ? 'Semi Final' :
                      match.match_type === '3rd_place' ? '3rd Place' :
                      match.match_type === 'final' ? 'Final' : match.match_type}

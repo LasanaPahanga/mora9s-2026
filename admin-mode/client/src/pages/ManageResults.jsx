@@ -476,12 +476,14 @@ function ManageResults() {
                 <td className="px-3 py-2 text-center">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     row.match_type === 'group_stage' ? 'bg-blue-500 text-white' :
+                    row.match_type === 'super6' ? 'bg-cyan-500 text-white' :
                     row.match_type === 'semi_final' ? 'bg-orange-500 text-white' :
                     row.match_type === '3rd_place' ? 'bg-yellow-500 text-white' :
                     row.match_type === 'final' ? 'bg-red-500 text-white' :
                     'bg-slate-700 text-slate-300'
                   }`}>
                     {row.match_type === 'group_stage' ? 'Group Stage' :
+                     row.match_type === 'super6' ? 'Super 6' :
                      row.match_type === 'semi_final' ? 'Semi Final' :
                      row.match_type === '3rd_place' ? '3rd Place' :
                      row.match_type === 'final' ? 'Final' : row.match_type}

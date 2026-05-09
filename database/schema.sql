@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS matches (
   team_2_id INT NOT NULL,
   status ENUM('scheduled', 'finished') DEFAULT 'scheduled',
   category ENUM('men', 'women') NOT NULL DEFAULT 'men',
-  match_type ENUM('group_stage', 'semi_final', '3rd_place', 'final') DEFAULT 'group_stage',
+  match_type ENUM('group_stage', 'super6', 'semi_final', '3rd_place', 'final') DEFAULT 'group_stage',
   FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE SET NULL,
   FOREIGN KEY (team_1_id) REFERENCES teams(id) ON DELETE CASCADE,
   FOREIGN KEY (team_2_id) REFERENCES teams(id) ON DELETE CASCADE

@@ -15,6 +15,7 @@ function generateMatchDescription(result) {
   const matchTypeText = match_type === 'final' ? 'In an exciting final match' :
                        match_type === 'semi_final' ? 'In a crucial semi-final' :
                        match_type === '3rd_place' ? 'In the 3rd place playoff' :
+                       match_type === 'super6' ? 'In a Super 6 stage match' :
                        'In a competitive group stage match';
   
   // Score difference

@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
       LEFT JOIN \`groups\` g ON t.group_id = g.id
     `);
     
-    // Get all results with match info - ONLY GROUP STAGE matches
+    // Get all results with match info - include GROUP STAGE and SUPER6 matches
     const [results] = await pool.query(`
       SELECT 
         r.*,
@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
         m.team_2_id
       FROM results r
       JOIN matches m ON r.match_id = m.id
-      WHERE m.match_type = 'group_stage'
+      WHERE m.match_type IN ('group_stage', 'super6')
     `);
     
     // Get card penalties
