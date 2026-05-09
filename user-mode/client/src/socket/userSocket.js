@@ -8,9 +8,11 @@ let socket = null;
 export function connectUserSocket() {
   if (!socket) {
     socket = io(API_URL, {
+      query: { client: "public" },
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 10,
+      transports: ["websocket", "polling"],
     });
 
     socket.on("connect", () => {

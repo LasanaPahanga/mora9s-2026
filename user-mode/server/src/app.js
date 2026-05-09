@@ -43,22 +43,36 @@ const PUBLIC_SITE_ROOM = "public_site";
 function broadcastPublicViewerCount() {
   const room = io.sockets.adapter.rooms.get(PUBLIC_SITE_ROOM);
   const n = room ? room.size : 0;
-  io.emit("viewer_count", n);
+  io.to(PUBLIC_SITE_ROOM).emit("viewer_count", n);
+}
+
+function isAdminRelay(socket) {
+  return socket.handshake?.query?.client === "admin_relay";
 }
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
-  console.log("✅ Client connected:", socket.id);
+  const relay = isAdminRelay(socket);
+  console.log(`✅ Client connected: ${socket.id} (${relay ? "admin relay" : "public"})`);
+
+  if (!relay) {
+    socket.join(PUBLIC_SITE_ROOM);
+    broadcastPublicViewerCount();
+  }
 
   socket.on("join_public_site", () => {
     socket.join(PUBLIC_SITE_ROOM);
     broadcastPublicViewerCount();
   });
 
-  // Listen for admin updates and broadcast to all clients
-  socket.on("admin_update", (data) => {
-    console.log(`📡 Broadcasting ${data.event} to all clients`);
-    io.emit(data.event, data.data);
+  // Admin API emits here; fan out only to browsers in public_site (not the relay connection).
+  socket.on("admin_update", (payload) => {
+    if (!payload || typeof payload.event !== "string") {
+      console.warn("⚠️ Ignoring invalid admin_update payload");
+      return;
+    }
+    io.to(PUBLIC_SITE_ROOM).emit(payload.event, payload.data);
+    console.log(`📡 Broadcast ${payload.event} → room ${PUBLIC_SITE_ROOM}`);
   });
 
   socket.on("disconnect", () => {
