@@ -5,6 +5,26 @@ import AdminTableScroll from "../components/AdminTableScroll.jsx";
 
 const API_BASE = import.meta.env.VITE_ADMIN_API || "http://localhost:5000";
 
+/** Human-readable outcome for the results table (API still stores team_1_win / team_2_win / draw). */
+function formatResultDisplay(row) {
+  const raw = row?.result;
+  if (raw == null || raw === "") return "—";
+  const t1 = row.team_1_name?.trim() || "Team 1";
+  const t2 = row.team_2_name?.trim() || "Team 2";
+  const s1 = Number(row.team_1_score ?? 0);
+  const s2 = Number(row.team_2_score ?? 0);
+  const pens =
+    row.penalty_score_team_1 != null &&
+    row.penalty_score_team_2 != null &&
+    s1 === s2;
+  const suffix = pens ? " (penalties)" : "";
+
+  if (raw === "team_1_win") return `${t1} wins${suffix}`;
+  if (raw === "team_2_win") return `${t2} wins${suffix}`;
+  if (raw === "draw") return "Draw";
+  return String(raw);
+}
+
 function ManageResults() {
   const { token } = useContext(AuthContext);
   const [results, setResults] = useState([]);
@@ -489,7 +509,7 @@ function ManageResults() {
                      row.match_type === 'final' ? 'Final' : row.match_type}
                   </span>
                 </td>
-                <td className="px-3 py-2">{row.result}</td>
+                <td className="px-3 py-2 whitespace-nowrap">{formatResultDisplay(row)}</td>
                 <td className="px-3 py-2 text-right space-x-2">
                   <button
                     type="button"
