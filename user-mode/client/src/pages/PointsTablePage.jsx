@@ -224,7 +224,7 @@ function PointsTablePage() {
         {filter === "men" && menGroupStageFinished === false && (
           <p className="mb-6 rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-3 text-sm text-slate-400">
             Men&apos;s Super Six tables show here after every men&apos;s group-stage match is
-            finished.
+            finished and has a recorded result.
           </p>
         )}
 

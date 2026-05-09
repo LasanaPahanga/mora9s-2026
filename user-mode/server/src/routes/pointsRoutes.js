@@ -12,9 +12,16 @@ router.get("/", async (req, res) => {
   try {
     const pool = getPool();
 
+    // Men's Super Six tables show only when every men's group-stage fixture is finished
+    // *and* has a results row — avoids stale UI after results are deleted while matches stay `finished`.
     const [unfinishedMenRows] = await pool.query(
-      `SELECT COUNT(*) AS cnt FROM matches
-       WHERE category = 'men' AND match_type = 'group_stage' AND status <> 'finished'`
+      `SELECT COUNT(*) AS cnt
+       FROM matches m
+       WHERE m.category = 'men' AND m.match_type = 'group_stage'
+         AND (
+           m.status <> 'finished'
+           OR NOT EXISTS (SELECT 1 FROM results r WHERE r.match_id = m.id)
+         )`
     );
     const menGroupStageFinished = Number(unfinishedMenRows[0].cnt) === 0;
     

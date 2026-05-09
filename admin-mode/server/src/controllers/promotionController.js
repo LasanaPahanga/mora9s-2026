@@ -11,11 +11,16 @@ export const promoteGroupToSuper6 = async () => {
   try {
     const pool = getPool();
 
-    // Check that ALL men's group stage matches are finished
+    // All men's group-stage fixtures finished AND each has a results row (no orphaned finished-without-result).
     const [unfinished] = await pool.query(
-      "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='group_stage' AND status!='finished'"
+      `SELECT COUNT(*) AS cnt FROM matches m
+       WHERE m.category = 'men' AND m.match_type = 'group_stage'
+         AND (
+           m.status <> 'finished'
+           OR NOT EXISTS (SELECT 1 FROM results r WHERE r.match_id = m.id)
+         )`
     );
-    if (unfinished[0].cnt > 0) {
+    if (Number(unfinished[0].cnt) > 0) {
       console.log(`[promoteGroupToSuper6] ${unfinished[0].cnt} group stage matches still pending, skipping promotion`);
       return false;
     }
