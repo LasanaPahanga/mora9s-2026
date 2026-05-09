@@ -85,7 +85,7 @@ INSERT INTO teams (id, name, group_id, category) VALUES
 
 -- Women's Group B Teams
 INSERT INTO teams (id, name, group_id, category) VALUES
-(24, 'Jpura', 7, 'women'),
+(24, 'Japura', 7, 'women'),
 (25, 'Colombo', 7, 'women'),
 (26, 'Ruhuna', 7, 'women'),
 (27, 'Wayamba', 7, 'women'),
@@ -104,7 +104,7 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 (5, 1, 1, 3, 'scheduled', 'men', 'group_stage'),     -- Match 5: A - Mora A(M) vs Sabra(M)
 (6, 1, 3, 6, 'scheduled', 'men', 'group_stage'),     -- Match 6: A - Sabra(M) vs Japura(M) [Note: mismatch in schedule, using nearest]
 (7, 2, 8, 6, 'scheduled', 'men', 'group_stage'),     -- Match 7: WA - SLIT(W) vs Kelani(W) [Note: This is women, schedule shows multi-category]
-(8, 2, 24, 27, 'scheduled', 'women', 'group_stage'), -- Match 8: WB - Jpura(W) vs Wayamba(W)
+(8, 2, 24, 27, 'scheduled', 'women', 'group_stage'), -- Match 8: WB - Japura(W) vs Wayamba(W)
 (9, 2, 5, 2, 'scheduled', 'men', 'group_stage'),     -- Match 9: WB - Colombo(W) vs NSBM(W)
 (10, 3, 9, 11, 'scheduled', 'men', 'group_stage'),   -- Match 10: C - Pera(M) vs Eastern(M)
 (11, 2, 8, 2, 'scheduled', 'men', 'group_stage'),    -- Match 11: B - Mora B(M) vs Kelani(M)
@@ -115,7 +115,7 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 (16, 3, 9, 10, 'scheduled', 'men', 'group_stage'),   -- Match 16: C - Pera(M) vs Ruhuna(M)
 (17, 6, 19, 23, 'scheduled', 'women', 'group_stage'), -- Match 17: WA - Mora(W) vs SLIT(W)
 (18, 6, 20, 22, 'scheduled', 'women', 'group_stage'), -- Match 18: WA - Sabra(W) vs Eastern(W)
-(19, 7, 24, 28, 'scheduled', 'women', 'group_stage'), -- Match 19: WB - Jpura(W) vs NSBM(W)
+(19, 7, 24, 28, 'scheduled', 'women', 'group_stage'), -- Match 19: WB - Japura(W) vs NSBM(W)
 (20, 7, 25, 27, 'scheduled', 'women', 'group_stage'), -- Match 20: WB - Colombo(W) vs Wayamba(W)
 (21, 2, 8, 5, 'scheduled', 'men', 'group_stage'),    -- Match 21: B - Mora B(M) vs Colombo(M)
 (22, 2, 2, 6, 'scheduled', 'men', 'group_stage'),    -- Match 22: B - Kelani(M) vs Japura(M)
@@ -125,7 +125,7 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 (26, 3, 11, 10, 'scheduled', 'men', 'group_stage'),  -- Match 26: C - Eastern(M) vs Ruhuna(M)
 (27, 6, 19, 21, 'scheduled', 'women', 'group_stage'), -- Match 27: WA - Mora(W) vs Kelani(W)
 (28, 6, 20, 22, 'scheduled', 'women', 'group_stage'), -- Match 28: WA - Sabra(W) vs Eastern(W)
-(29, 7, 24, 28, 'scheduled', 'women', 'group_stage'), -- Match 29: WB - Jpura(W) vs NSBM(W)
+(29, 7, 24, 28, 'scheduled', 'women', 'group_stage'), -- Match 29: WB - Japura(W) vs NSBM(W)
 (30, 7, 25, 26, 'scheduled', 'women', 'group_stage'); -- Match 30: WB - Colombo(W) vs Ruhuna(W)
 
 -- Men's Super 6 Group Stage (matches 31-44)
@@ -134,7 +134,7 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 (32, 5, 16, 17, 'scheduled', 'men', 'super6'),       -- Match 32: SB - A2(M) vs B1(M)
 (33, 6, 19, 20, 'scheduled', 'women', 'group_stage'), -- Match 33: WA - Mora(W) vs Sabra(W)
 (34, 6, 21, 22, 'scheduled', 'women', 'group_stage'), -- Match 34: WA - Kelani(W) vs Eastern(W)
-(35, 7, 24, 25, 'scheduled', 'women', 'group_stage'), -- Match 35: WB - Jpura(W) vs Colombo(W)
+(35, 7, 24, 25, 'scheduled', 'women', 'group_stage'), -- Match 35: WB - Japura(W) vs Colombo(W)
 (36, 7, 26, 27, 'scheduled', 'women', 'group_stage'), -- Match 36: WB - Ruhuna(W) vs Wayamba(W)
 (37, 4, 13, 15, 'scheduled', 'men', 'super6'),       -- Match 37: SA - A1(M) vs C1(M)
 (38, 5, 16, 18, 'scheduled', 'men', 'super6'),       -- Match 38: SB - A2(M) vs C2(M)

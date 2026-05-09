@@ -133,6 +133,11 @@ function Matches() {
                       Final
                     </span>
                   )}
+                  {m.match_type === "3rd_place" && (
+                    <span className="text-[10px] sm:text-xs bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded-full font-semibold">
+                      3rd Place
+                    </span>
+                  )}
                   <span
                     className={`text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full ${
                       m.status === "finished" ? "bg-blue-900/80 text-blue-200" : "bg-amber-900/80 text-amber-200"
