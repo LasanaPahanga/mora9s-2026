@@ -1,4 +1,6 @@
 # Run backend on EC2: pull latest code, install deps, restart PM2.
+# Also runs when database/** changes so the server has latest SQL/migrations on disk
+# (apply migrations manually or via your own process; restart alone does not alter MySQL).
 # Prerequisites on EC2: repo at DEPLOY_PATH, PM2 process names, Node, MySQL, .env files.
 # Secrets: EC2_HOST, EC2_USER, EC2_SSH_KEY (full .pem content)
 
@@ -11,6 +13,7 @@ on:
     paths:
       - "user-mode/server/**"
       - "admin-mode/server/**"
+      - "database/**"
       - ".github/workflows/deploy-aws-backend.yml"
   workflow_dispatch:
 

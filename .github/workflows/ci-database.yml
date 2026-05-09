@@ -1,0 +1,45 @@
+# Validate database/schema.sql applies cleanly on a fresh MySQL 8 instance.
+# Migration scripts under database/ may assume seeded data or specific IDs — not run here.
+
+name: CI database schema
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "database/**"
+      - ".github/workflows/ci-database.yml"
+  pull_request:
+    paths:
+      - "database/**"
+      - ".github/workflows/ci-database.yml"
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ci_root_pw
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_root_pw"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MySQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Apply schema.sql
+        run: |
+          mysql --protocol=tcp -h 127.0.0.1 -P 3306 -uroot -pci_root_pw < database/schema.sql

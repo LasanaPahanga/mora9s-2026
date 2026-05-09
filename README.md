@@ -49,7 +49,7 @@ In production, frontends are often on **Vercel** and APIs + database on a host s
 | `user-mode/server` | REST + Socket.IO for the public app |
 | `admin-mode/client` | Vite + React admin dashboard |
 | `admin-mode/server` | REST + auth for the admin app |
-| `.github/workflows/` | CI: Vercel frontends, optional AWS backend deploy |
+| `.github/workflows/` | CI: Vercel frontends, AWS backend deploy (includes `database/**`), schema validation on SQL changes |
 
 ---
 
