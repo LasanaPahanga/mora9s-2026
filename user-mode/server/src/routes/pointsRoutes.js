@@ -8,11 +8,13 @@ router.get("/", async (req, res) => {
   try {
     const pool = getPool();
     
-    // Get all teams with group info
+    // Omit knockout bracket placeholders (SA1, "Men Final — pending", etc.) — they have no group
+    // and must not appear as a fake "No Group" standings bucket. Super 6 placeholders stay (they have group_id).
     const [teams] = await pool.query(`
       SELECT t.id, t.name, t.category, t.group_id, g.name as group_name
       FROM teams t
       LEFT JOIN \`groups\` g ON t.group_id = g.id
+      WHERE NOT (COALESCE(t.is_placeholder, 0) = 1 AND t.group_id IS NULL)
     `);
     
     // Get all results with match info - include GROUP STAGE and SUPER6 matches
