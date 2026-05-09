@@ -3,6 +3,7 @@ import axios from "axios";
 import useSocket from "../hooks/useSocket";
 import CategoryFilterTabs from "../components/CategoryFilterTabs";
 import SEO from "../components/SEO.jsx";
+import { resolveTeamLogoFile } from "../utils/teamLogo.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -82,32 +83,6 @@ function Matches() {
       if (oa !== ob) return oa - ob;
       return a.id - b.id;
     });
-
-  // Function to get university logo based on team name
-  const getTeamLogo = (teamName) => {
-    const logoMap = {
-      'Mora A': 'mora.png',
-      'Mora B': 'mora.png',
-      'Sabra': 'sabra.png',
-      'Pera': 'pera.png',
-      'Wayamba': 'wayamba.png',
-      'Rajarata': 'rajarata.png',
-      'Ruhuna': 'ruhuna.png',
-      'Kelani': 'kelani.png',
-      'Japura': 'japura.png',
-      'SLIIT': 'sliit.png',
-      'Colombo': 'pera.png' // Assuming Colombo uses Pera logo, adjust if needed
-    };
-
-    if (!teamName) return 'mora.png';
-
-    // Direct mapping first
-    if (logoMap[teamName]) return logoMap[teamName];
-
-    // Attempt slug-based filename match: e.g. "Eastern University" -> "eastern.png", "NSBM" -> "nsbm.png"
-    const slug = teamName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${slug}.png`;
-  };
 
   return (
     <div className="py-8">
@@ -211,7 +186,7 @@ function Matches() {
                   <div className="flex flex-col items-center text-center min-w-0 gap-1.5 sm:gap-2">
                     <div className="flex h-11 w-11 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-1 ring-2 ring-slate-600/60">
                       <img
-                        src={`/assets/uni_logo/${getTeamLogo(m.team_1_name)}`}
+                        src={`/assets/uni_logo/${resolveTeamLogoFile(m.team_1_name)}`}
                         alt=""
                         className="h-full w-full object-contain"
                         onError={(e) => {
@@ -255,7 +230,7 @@ function Matches() {
                   <div className="flex min-w-0 flex-col items-center gap-1.5 text-center sm:gap-2">
                     <div className="flex h-11 w-11 sm:h-14 sm:w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white p-1 ring-2 ring-slate-600/60">
                       <img
-                        src={`/assets/uni_logo/${getTeamLogo(m.team_2_name)}`}
+                        src={`/assets/uni_logo/${resolveTeamLogoFile(m.team_2_name)}`}
                         alt=""
                         className="h-full w-full object-contain"
                         onError={(e) => {

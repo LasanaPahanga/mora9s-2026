@@ -3,6 +3,7 @@ import axios from "axios";
 import useSocket from "../hooks/useSocket";
 import CategoryFilterTabs from "../components/CategoryFilterTabs";
 import SEO from "../components/SEO.jsx";
+import { resolveTeamLogoFile } from "../utils/teamLogo.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -115,32 +116,6 @@ function Results() {
 
   const filteredResults = results.filter((result) => result.category === filter);
 
-  // Function to get university logo based on team name
-  const getTeamLogo = (teamName) => {
-    const logoMap = {
-      'Mora A': 'mora.png',
-      'Mora B': 'mora.png',
-      'Sabra': 'sabra.png',
-      'Pera': 'pera.png',
-      'Wayamba': 'wayamba.png',
-      'Rajarata': 'rajarata.png',
-      'Ruhuna': 'ruhuna.png',
-      'Kelani': 'kelani.png',
-      'Japura': 'japura.png',
-      'SLIIT': 'sliit.png',
-      'Colombo': 'pera.png' // Assuming Colombo uses Pera logo, adjust if needed
-    };
-
-    if (!teamName) return 'mora.png';
-
-    // Direct mapping first
-    if (logoMap[teamName]) return logoMap[teamName];
-
-    // Attempt slug-based filename match: e.g. "Eastern University" -> "eastern.png", "NSBM" -> "nsbm.png"
-    const slug = teamName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${slug}.png`;
-  };
-
   return (
     <div className="py-8">
       <SEO
@@ -226,7 +201,7 @@ function Results() {
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-white p-1 shadow-sm flex-shrink-0">
                               <img 
-                                src={`/assets/uni_logo/${getTeamLogo(r.team_1_name)}`}
+                                src={`/assets/uni_logo/${resolveTeamLogoFile(r.team_1_name)}`}
                                 alt={`${r.team_1_name} logo`}
                                 className="w-full h-full object-contain"
                                 onError={(e) => {
@@ -267,7 +242,7 @@ function Results() {
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-white p-1 shadow-sm flex-shrink-0">
                               <img 
-                                src={`/assets/uni_logo/${getTeamLogo(r.team_2_name)}`}
+                                src={`/assets/uni_logo/${resolveTeamLogoFile(r.team_2_name)}`}
                                 alt={`${r.team_2_name} logo`}
                                 className="w-full h-full object-contain"
                                 onError={(e) => {

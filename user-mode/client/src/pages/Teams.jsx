@@ -3,6 +3,7 @@ import axios from "axios";
 import useSocket from "../hooks/useSocket";
 import CategoryFilterTabs from "../components/CategoryFilterTabs";
 import SEO from "../components/SEO.jsx";
+import { resolveTeamLogoFile } from "../utils/teamLogo.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
@@ -77,32 +78,6 @@ function Teams() {
     }
   });
 
-  // Function to get university logo based on team name
-  const getTeamLogo = (teamName) => {
-    const logoMap = {
-      'Mora A': 'mora.png',
-      'Mora B': 'mora.png',
-      'Sabra': 'sabra.png',
-      'Pera': 'pera.png',
-      'Wayamba': 'wayamba.png',
-      'Rajarata': 'rajarata.png',
-      'Ruhuna': 'ruhuna.png',
-      'Kelani': 'kelani.png',
-      'Japura': 'japura.png',
-      'SLIIT': 'sliit.png',
-      'Colombo': 'pera.png' // Assuming Colombo uses Pera logo, adjust if needed
-    };
-
-    if (!teamName) return 'mora.png';
-
-    // Direct mapping first
-    if (logoMap[teamName]) return logoMap[teamName];
-
-    // Attempt slug-based filename match: e.g. "Eastern University" -> "eastern.png", "NSBM" -> "nsbm.png"
-    const slug = teamName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${slug}.png`;
-  };
-
   return (
     <div className="py-8">
       <SEO
@@ -146,7 +121,7 @@ function Teams() {
               >
                 <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-white p-3 shadow-lg hover:scale-105 transition-transform duration-300">
                   <img 
-                    src={`/assets/uni_logo/${getTeamLogo(uni.name)}`}
+                    src={`/assets/uni_logo/${resolveTeamLogoFile(uni.name)}`}
                     alt={`${uni.displayName} logo`}
                     className="w-full h-full object-contain"
                     onError={(e) => {
