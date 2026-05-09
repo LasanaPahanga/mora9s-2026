@@ -52,7 +52,7 @@ function Teams() {
     fetchTeams();
   });
 
-  const filteredTeams = teams.filter((team) => team.category === filter);
+  const filteredTeams = teams.filter((team) => team.category === filter && !team.is_placeholder);
 
   // Helper to count unique universities per category
   const getUniqueCount = (category) => {

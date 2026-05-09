@@ -64,16 +64,16 @@ INSERT INTO teams (id, name, group_id, category) VALUES
 (12, 'SLIT', 3, 'men');
 
 -- Men's Super A Group (A1, B2, C1)
-INSERT INTO teams (id, name, group_id, category) VALUES
-(13, 'A1', 4, 'men'),
-(14, 'B2', 4, 'men'),
-(15, 'C1', 4, 'men');
+INSERT INTO teams (id, name, group_id, category, is_placeholder) VALUES
+(13, 'A1', 4, 'men', 1),
+(14, 'B2', 4, 'men', 1),
+(15, 'C1', 4, 'men', 1);
 
 -- Men's Super B Group (A2, B1, C2)
-INSERT INTO teams (id, name, group_id, category) VALUES
-(16, 'A2', 5, 'men'),
-(17, 'B1', 5, 'men'),
-(18, 'C2', 5, 'men');
+INSERT INTO teams (id, name, group_id, category, is_placeholder) VALUES
+(16, 'A2', 5, 'men', 1),
+(17, 'B1', 5, 'men', 1),
+(18, 'C2', 5, 'men', 1);
 
 -- Women's Group A Teams
 INSERT INTO teams (id, name, group_id, category) VALUES

@@ -2,11 +2,20 @@ import { getPool } from "../db.js";
 import { emitToUsers } from "../utils/socket.js";
 
 // Promote top teams from each group into Super6 placeholders (A1,A2,B1,B2,C1,C2)
+// Only runs when ALL group stage matches for men are finished
 export const generateSuper6 = async (req, res) => {
   try {
     const pool = getPool();
 
-    // Load groups for men's group stage (assumes Group A/B/C naming)
+    // Check that ALL men's group stage matches are finished
+    const [unfinished] = await pool.query(
+      "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='group_stage' AND status!='finished'"
+    );
+    if (unfinished[0].cnt > 0) {
+      return res.status(400).json({ error: `Cannot promote yet: ${unfinished[0].cnt} group stage matches still scheduled or in progress. All must be finished.` });
+    }
+
+    // Load groups for men's group stage
     const [groups] = await pool.query(
       "SELECT id, name FROM `groups` WHERE category = 'men' AND name LIKE 'Group %' ORDER BY id"
     );
@@ -21,7 +30,7 @@ export const generateSuper6 = async (req, res) => {
     const [teams] = await pool.query(
       `SELECT t.id, t.name, t.group_id
        FROM teams t
-       WHERE t.group_id IN (${groupIds.join(',')}) AND t.category = 'men'`
+       WHERE t.group_id IN (${groupIds.join(',')}) AND t.category = 'men' AND t.is_placeholder = 0`
     );
 
     // Load results for group stage matches
@@ -83,43 +92,36 @@ export const generateSuper6 = async (req, res) => {
       promotions[g.id] = groupTeams.slice(0,2).map(t => t.team_id);
     }
 
-    // Map placeholders to promoted team ids
-    // Expected: groups ordered as Group A, Group B, Group C
-    // placeholders: A1,A2 -> superA; B1,B2 -> superB; C1,C2 -> superA/B mapping per seed
-    // We'll update teams named A1,A2,B1,B2,C1,C2 with real names and keep their group_id as-is
+    // Load placeholder teams to update
+    const [placeholders] = await pool.query(
+      "SELECT id, name FROM teams WHERE is_placeholder = 1 AND category = 'men' AND name IN ('A1','A2','B1','B2','C1','C2')"
+    );
 
-    const placeholderNames = ['A1','A2','B1','B2','C1','C2'];
-    const [placeholders] = await pool.query(`SELECT id, name FROM teams WHERE name IN (${placeholderNames.map(()=>'?').join(',')})`, placeholderNames);
-
-    // Build mapping by group order
-    const groupOrder = groups; // assume groups in A,B,C order
+    const groupOrder = groups;
     const updates = [];
-    // A -> groupOrder[0], B -> groupOrder[1], C -> groupOrder[2]
     const map = { A: groupOrder[0].id, B: groupOrder[1].id, C: groupOrder[2].id };
 
     for (const ph of placeholders) {
-      const p = ph.name; // e.g. 'A1'
+      const p = ph.name;
       const letter = p.charAt(0);
-      const pos = Number(p.charAt(1)); // 1 or 2
+      const pos = Number(p.charAt(1));
       const sourceGroupId = map[letter];
       const promoted = promotions[sourceGroupId];
       if (!promoted || promoted.length < pos) continue;
       const realTeamId = promoted[pos-1];
-      // get real team name
-      const [realRows] = await pool.query('SELECT name FROM teams WHERE id = ?', [realTeamId]);
-      const realName = realRows[0].name;
-      updates.push({ placeholderId: ph.id, newName: realName });
+      const [realRows] = await pool.query('SELECT name FROM teams WHERE id = ? AND is_placeholder=0', [realTeamId]);
+      const realName = realRows[0]?.name || `Team ${realTeamId}`;
+      updates.push({ placeholderId: ph.id, placeholderName: p, newName: realName, realTeamId });
     }
 
-    // Apply updates
+    // Apply updates to placeholder team rows
     for (const u of updates) {
       await pool.query('UPDATE teams SET name = ? WHERE id = ?', [u.newName, u.placeholderId]);
     }
 
-    // Emit update for matches/teams to clients
-    emitToUsers('super6_promoted', { updates });
+    emitToUsers('super6_promoted', { updated: updates.length, details: updates });
 
-    res.json({ promoted: updates.length, details: updates });
+    res.json({ message: 'Group stage promotions complete', promoted: updates.length, details: updates });
   } catch (err) {
     console.error('Error generating Super6 promotions', err);
     res.status(500).json({ error: 'Failed to generate Super6 promotions' });

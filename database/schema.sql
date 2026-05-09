@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS teams (
   name VARCHAR(100) NOT NULL,
   group_id INT,
   category ENUM('men', 'women') NOT NULL DEFAULT 'men',
+  is_placeholder BOOLEAN DEFAULT FALSE,
   FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE SET NULL
 );
 
