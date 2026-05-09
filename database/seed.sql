@@ -102,6 +102,17 @@ INSERT INTO teams (id, name, group_id, category) VALUES
 (27, 'Wayamba', 7, 'women'),
 (28, 'NSBM', 7, 'women');
 
+-- Women's knockout placeholders (filled after all women's group games → semis; 3rd/final after semis)
+INSERT INTO teams (id, name, group_id, category, is_placeholder) VALUES
+(37, 'WA1', NULL, 'women', 1),
+(38, 'WB2', NULL, 'women', 1),
+(39, 'WB1', NULL, 'women', 1),
+(40, 'WA2', NULL, 'women', 1),
+(41, 'Women 3rd — pending', NULL, 'women', 1),
+(42, 'Women 3rd — pending', NULL, 'women', 1),
+(43, 'Women Final — pending', NULL, 'women', 1),
+(44, 'Women Final — pending', NULL, 'women', 1);
+
 -- ========================================
 -- Insert Matches (All 52 matches from schedule)
 -- ========================================
@@ -158,19 +169,19 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 
 -- Semi-Finals (matches 45-48)
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
-(45, NULL, 19, 14, 'scheduled', 'women', 'semi_final'),  -- Match 45: WSF1 - A1 vs B2
-(46, NULL, 21, 25, 'scheduled', 'women', 'semi_final'),  -- Match 46: WSF2 - B1 vs A2
+(45, NULL, 37, 38, 'scheduled', 'women', 'semi_final'),  -- WSF1 — A winner vs B runner (after group stage)
+(46, NULL, 39, 40, 'scheduled', 'women', 'semi_final'),  -- WSF2 — B winner vs A runner
 (47, NULL, 29, 30, 'scheduled', 'men', 'semi_final'),    -- Match 47: MSF1 — filled after Super 6 (SA winner vs SB 2nd)
 (48, NULL, 31, 32, 'scheduled', 'men', 'semi_final');    -- Match 48: MSF2 — filled after Super 6 (SA 2nd vs SB winner)
 
 -- 3rd Place Matches (matches 49-50)
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
-(49, NULL, 19, 25, 'scheduled', 'women', '3rd_place'),   -- Match 49: W 3rd - Loser 45 vs Loser 46
+(49, NULL, 41, 42, 'scheduled', 'women', '3rd_place'),   -- W 3rd — filled after women's semis
 (50, NULL, 33, 34, 'scheduled', 'men', '3rd_place');      -- Match 50: M 3rd — filled after men's semis
 
 -- Finals (matches 51-52)
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
-(51, NULL, 19, 21, 'scheduled', 'women', 'final'),       -- Match 51: WF - Winner 45 vs Winner 46
+(51, NULL, 43, 44, 'scheduled', 'women', 'final'),       -- WF — filled after women's semis
 (52, NULL, 35, 36, 'scheduled', 'men', 'final');          -- Match 52: MF — filled after men's semis
 
 -- Re-enable safe update mode

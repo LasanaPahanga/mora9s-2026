@@ -275,26 +275,156 @@ export const promoteSuper6ToSemiFinals = async () => {
   }
 };
 
-// After women's group stage (match 42): Women skip super6, nothing to replace
+// After ALL women's group-stage matches: set semi-finals from standings (women skip Super 6).
+// WSF1 = Pool A winner vs Pool B runner-up | WSF2 = Pool B winner vs Pool A runner-up
 export const promoteWomenGroupToSemiFinals = async () => {
   try {
     const pool = getPool();
 
-    // Check that ALL women's group stage matches are finished
     const [unfinished] = await pool.query(
       "SELECT COUNT(*) as cnt FROM matches WHERE category='women' AND match_type='group_stage' AND status!='finished'"
     );
     if (unfinished[0].cnt > 0) {
-      console.log(`[promoteWomenGroupToSemiFinals] ${unfinished[0].cnt} group stage matches still pending, skipping promotion`);
+      console.log(
+        `[promoteWomenGroupToSemiFinals] ${unfinished[0].cnt} women's group matches still pending, skipping promotion`
+      );
       return false;
     }
 
-    // For women, no replacements needed - semi-finals are directly assigned
-    console.log('[promoteWomenGroupToSemiFinals] Women group stage complete, semi-finals ready');
-    emitToUsers('women_semi_finals_ready', { message: 'Women semi-finals ready' });
+    const [groups] = await pool.query(
+      "SELECT id, name FROM `groups` WHERE category = 'women' AND name LIKE 'Group %' ORDER BY id"
+    );
+
+    if (!groups || groups.length < 2) {
+      throw new Error("Need two women's groups for semi-final promotion");
+    }
+
+    const groupIds = groups.map((g) => g.id);
+
+    const [teams] = await pool.query(
+      `SELECT t.id, t.name, t.group_id
+       FROM teams t
+       WHERE t.group_id IN (${groupIds.join(",")}) AND t.category = 'women' AND COALESCE(t.is_placeholder, 0) = 0`
+    );
+
+    const [results] = await pool.query(
+      `SELECT r.*, m.team_1_id, m.team_2_id
+       FROM results r
+       JOIN matches m ON r.match_id = m.id
+       WHERE m.match_type = 'group_stage' AND m.category = 'women'`
+    );
+
+    const [cardPenalties] = await pool.query("SELECT card_type, penalty_points FROM card_penalties");
+    const penalties = {};
+    cardPenalties.forEach((p) => {
+      penalties[p.card_type] = p.penalty_points;
+    });
+
+    const stats = {};
+    teams.forEach((t) => {
+      stats[t.id] = {
+        team_id: t.id,
+        team_name: t.name,
+        group_id: t.group_id,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        goals_for: 0,
+        goals_against: 0,
+        goal_difference: 0,
+        penalty_points: 0,
+        points: 0,
+      };
+    });
+
+    results.forEach((r) => {
+      const t1 = r.team_1_id;
+      const t2 = r.team_2_id;
+      if (stats[t1]) {
+        stats[t1].played++;
+        stats[t1].goals_for += r.team_1_score;
+        stats[t1].goals_against += r.team_2_score;
+        stats[t1].penalty_points +=
+          (r.yellow_cards_team_1 || 0) * (penalties.yellow || 0) +
+          (r.red_cards_team_1 || 0) * (penalties.red || 0) +
+          (r.green_cards_team_1 || 0) * (penalties.green || 0);
+        if (r.result === "team_1_win") {
+          stats[t1].won++;
+          stats[t1].points += 3;
+        } else if (r.result === "draw") {
+          stats[t1].drawn++;
+          stats[t1].points += 1;
+        } else if (r.result === "team_2_win") stats[t1].lost++;
+      }
+      if (stats[t2]) {
+        stats[t2].played++;
+        stats[t2].goals_for += r.team_2_score;
+        stats[t2].goals_against += r.team_1_score;
+        stats[t2].penalty_points +=
+          (r.yellow_cards_team_2 || 0) * (penalties.yellow || 0) +
+          (r.red_cards_team_2 || 0) * (penalties.red || 0) +
+          (r.green_cards_team_2 || 0) * (penalties.green || 0);
+        if (r.result === "team_2_win") {
+          stats[t2].won++;
+          stats[t2].points += 3;
+        } else if (r.result === "draw") {
+          stats[t2].drawn++;
+          stats[t2].points += 1;
+        } else if (r.result === "team_1_win") stats[t2].lost++;
+      }
+    });
+
+    Object.values(stats).forEach((s) => {
+      s.goal_difference = s.goals_for - s.goals_against;
+    });
+
+    const promotions = {};
+    for (const g of groups) {
+      const groupTeams = Object.values(stats).filter((s) => s.group_id === g.id);
+      groupTeams.sort((a, b) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference;
+        if (b.goals_for !== a.goals_for) return b.goals_for - a.goals_for;
+        if (b.won !== a.won) return b.won - a.won;
+        return b.penalty_points - a.penalty_points;
+      });
+      promotions[g.id] = groupTeams.slice(0, 2).map((t) => t.team_id);
+    }
+
+    const groupAId = groups[0].id;
+    const groupBId = groups[1].id;
+    const topA = promotions[groupAId];
+    const topB = promotions[groupBId];
+
+    if (!topA || topA.length < 2 || !topB || topB.length < 2) {
+      throw new Error("Women's standings incomplete — need top two teams per group");
+    }
+
+    const winnerA = topA[0];
+    const runnerA = topA[1];
+    const winnerB = topB[0];
+    const runnerB = topB[1];
+
+    await pool.query(
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 45 AND category = 'women' AND match_type = 'semi_final'",
+      [winnerA, runnerB]
+    );
+    await pool.query(
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 46 AND category = 'women' AND match_type = 'semi_final'",
+      [winnerB, runnerA]
+    );
+
+    console.log(
+      `[promoteWomenGroupToSemiFinals] Semis set — 45: ${winnerA} vs ${runnerB}, 46: ${winnerB} vs ${runnerA}`
+    );
+    emitToUsers("women_semi_finals_ready", {
+      match45: [winnerA, runnerB],
+      match46: [winnerB, runnerA],
+    });
     return true;
   } catch (err) {
-    console.error('[promoteWomenGroupToSemiFinals] Error:', err);
+    console.error("[promoteWomenGroupToSemiFinals] Error:", err);
     return false;
   }
 };
@@ -405,17 +535,29 @@ export const promoteMenSemiToFinals = async () => {
   }
 };
 
-// Auto-promotion trigger based on match number
+// Auto-promotion after a match is marked finished (each promotion checks prerequisites internally)
 export const triggerAutoPromotion = async (finishedMatchId) => {
-  if (finishedMatchId === 26) {
+  const pool = getPool();
+  const [rows] = await pool.query(
+    "SELECT category, match_type FROM matches WHERE id = ?",
+    [finishedMatchId]
+  );
+  const m = rows[0];
+  if (!m) return;
+
+  if (m.category === "men" && m.match_type === "group_stage") {
     await promoteGroupToSuper6();
-  } else if (finishedMatchId === 42) {
+  }
+  if (m.category === "women" && m.match_type === "group_stage") {
     await promoteWomenGroupToSemiFinals();
-  } else if (finishedMatchId === 44) {
+  }
+  if (m.category === "men" && m.match_type === "super6") {
     await promoteSuper6ToSemiFinals();
-  } else if (finishedMatchId === 46) {
+  }
+  if (m.category === "women" && m.match_type === "semi_final") {
     await promoteWomenSemiToFinals();
-  } else if (finishedMatchId === 48) {
+  }
+  if (m.category === "men" && m.match_type === "semi_final") {
     await promoteMenSemiToFinals();
   }
 };
