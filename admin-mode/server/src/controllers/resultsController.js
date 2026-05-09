@@ -71,9 +71,11 @@ export const createResult = async (req, res) => {
       penalty_score_team_2
     };
     
-    // Emit real-time update to user clients
-    emitToUsers('result_created', newResult);
-    
+    // Emit real-time update to user clients (results page listens for result_*)
+    await emitToUsers("result_created", newResult);
+    // Matches page listens for match_* — DB match row status became finished
+    await emitToUsers("match_updated", { id: Number(match_id) });
+
     res.status(201).json(newResult);
   } catch (err) {
     console.error("Error creating result", err);
@@ -114,9 +116,9 @@ export const updateResult = async (req, res) => {
       await triggerAutoPromotion(match_id);
     const updatedResult = { id, match_id, team_1_score, team_2_score, result, yellow_cards_team_1, red_cards_team_1, green_cards_team_1, yellow_cards_team_2, red_cards_team_2, green_cards_team_2, penalty_score_team_1, penalty_score_team_2 };
     
-    // Emit real-time update to user clients
-    emitToUsers('result_updated', updatedResult);
-    
+    await emitToUsers("result_updated", updatedResult);
+    await emitToUsers("match_updated", { id: Number(match_id) });
+
     res.json(updatedResult);
   } catch (err) {
     console.error("Error updating result", err);
@@ -128,11 +130,14 @@ export const deleteResult = async (req, res) => {
   const { id } = req.params;
   try {
     const pool = getPool();
+    const [[row]] = await pool.query("SELECT match_id FROM results WHERE id = ?", [id]);
     await pool.query("DELETE FROM results WHERE id = ?", [id]);
-    
-    // Emit real-time update to user clients
-    emitToUsers('result_deleted', { id });
-    
+
+    await emitToUsers("result_deleted", { id });
+    if (row?.match_id != null) {
+      await emitToUsers("match_updated", { id: Number(row.match_id) });
+    }
+
     res.status(204).send();
   } catch (err) {
     console.error("Error deleting result", err);
