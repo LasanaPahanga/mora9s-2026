@@ -161,7 +161,12 @@ function Matches() {
                       {semiLabel}
                     </span>
                   )}
-                  {m.group_name && mt !== "semi_final" && (
+                  {mt === "super6" && (
+                    <span className="text-[10px] sm:text-xs bg-cyan-600 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-semibold text-white">
+                      Super 6
+                    </span>
+                  )}
+                  {m.group_name && mt !== "semi_final" && mt !== "super6" && (
                     <span className="text-[10px] sm:text-xs bg-emerald-900/80 text-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">
                       {m.group_name}
                     </span>
