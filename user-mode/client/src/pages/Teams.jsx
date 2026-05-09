@@ -57,8 +57,10 @@ function Teams() {
 
   // Helper to count unique universities per category
   const getUniqueCount = (category) => {
-    const categoryTeams = teams.filter(t => t.category === category);
-    const uniqueNames = new Set(categoryTeams.map(t => t.name.replace(/\s+[A-Z]$/, '').trim()));
+    const categoryTeams = teams.filter(
+      (t) => t.category === category && !t.is_placeholder
+    );
+    const uniqueNames = new Set(categoryTeams.map((t) => t.name.replace(/\s+[A-Z]$/, "").trim()));
     return uniqueNames.size;
   };
 
