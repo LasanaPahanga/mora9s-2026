@@ -1,5 +1,6 @@
 import { getPool } from "../db.js";
 import { emitToUsers } from "../utils/socket.js";
+import { triggerAutoPromotion } from "./promotionController.js";
 
 export const getResults = async (req, res) => {
   try {
@@ -48,6 +49,12 @@ export const createResult = async (req, res) => {
       "INSERT INTO results (match_id, team_1_score, team_2_score, result, yellow_cards_team_1, red_cards_team_1, green_cards_team_1, yellow_cards_team_2, red_cards_team_2, green_cards_team_2, penalty_score_team_1, penalty_score_team_2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [match_id, team_1_score, team_2_score, result, yellow_cards_team_1 || 0, red_cards_team_1 || 0, green_cards_team_1 || 0, yellow_cards_team_2 || 0, red_cards_team_2 || 0, green_cards_team_2 || 0, penalty_score_team_1 ?? null, penalty_score_team_2 ?? null]
     );
+    
+      // Mark match as finished
+      await pool.query("UPDATE matches SET status = 'finished' WHERE id = ?", [match_id]);
+    
+      // Trigger auto-promotion if threshold met
+      await triggerAutoPromotion(match_id);
     const newResult = {
       id: resultRow.insertId,
       match_id,
@@ -99,6 +106,12 @@ export const updateResult = async (req, res) => {
       "UPDATE results SET match_id = ?, team_1_score = ?, team_2_score = ?, result = ?, yellow_cards_team_1 = ?, red_cards_team_1 = ?, green_cards_team_1 = ?, yellow_cards_team_2 = ?, red_cards_team_2 = ?, green_cards_team_2 = ?, penalty_score_team_1 = ?, penalty_score_team_2 = ? WHERE id = ?",
       [match_id, team_1_score, team_2_score, result, yellow_cards_team_1 || 0, red_cards_team_1 || 0, green_cards_team_1 || 0, yellow_cards_team_2 || 0, red_cards_team_2 || 0, green_cards_team_2 || 0, penalty_score_team_1 ?? null, penalty_score_team_2 ?? null, id]
     );
+    
+      // Mark match as finished if result is being updated
+      await pool.query("UPDATE matches SET status = 'finished' WHERE id = ?", [match_id]);
+    
+      // Trigger auto-promotion if threshold met
+      await triggerAutoPromotion(match_id);
     const updatedResult = { id, match_id, team_1_score, team_2_score, result, yellow_cards_team_1, red_cards_team_1, green_cards_team_1, yellow_cards_team_2, red_cards_team_2, green_cards_team_2, penalty_score_team_1, penalty_score_team_2 };
     
     // Emit real-time update to user clients
