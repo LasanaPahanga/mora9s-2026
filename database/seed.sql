@@ -75,6 +75,17 @@ INSERT INTO teams (id, name, group_id, category, is_placeholder) VALUES
 (17, 'B1', 5, 'men', 1),
 (18, 'C2', 5, 'men', 1);
 
+-- Men's knockout placeholders (NOT Super 6 IDs 13–18 — those get renamed after group promotion)
+INSERT INTO teams (id, name, group_id, category, is_placeholder) VALUES
+(29, 'SA1', NULL, 'men', 1),
+(30, 'SB2', NULL, 'men', 1),
+(31, 'SA2', NULL, 'men', 1),
+(32, 'SB1', NULL, 'men', 1),
+(33, 'Men 3rd — pending', NULL, 'men', 1),
+(34, 'Men 3rd — pending', NULL, 'men', 1),
+(35, 'Men Final — pending', NULL, 'men', 1),
+(36, 'Men Final — pending', NULL, 'men', 1);
+
 -- Women's Group A Teams
 INSERT INTO teams (id, name, group_id, category) VALUES
 (19, 'Mora', 6, 'women'),
@@ -149,18 +160,18 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
 (45, NULL, 19, 14, 'scheduled', 'women', 'semi_final'),  -- Match 45: WSF1 - A1 vs B2
 (46, NULL, 21, 25, 'scheduled', 'women', 'semi_final'),  -- Match 46: WSF2 - B1 vs A2
-(47, NULL, 13, 18, 'scheduled', 'men', 'semi_final'),    -- Match 47: MSF1 - SA1 vs SB2
-(48, NULL, 14, 17, 'scheduled', 'men', 'semi_final');    -- Match 48: MSF2 - SA2 vs SB1
+(47, NULL, 29, 30, 'scheduled', 'men', 'semi_final'),    -- Match 47: MSF1 — filled after Super 6 (SA winner vs SB 2nd)
+(48, NULL, 31, 32, 'scheduled', 'men', 'semi_final');    -- Match 48: MSF2 — filled after Super 6 (SA 2nd vs SB winner)
 
 -- 3rd Place Matches (matches 49-50)
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
 (49, NULL, 19, 25, 'scheduled', 'women', '3rd_place'),   -- Match 49: W 3rd - Loser 45 vs Loser 46
-(50, NULL, 13, 17, 'scheduled', 'men', '3rd_place');     -- Match 50: M 3rd - Loser 47 vs Loser 48
+(50, NULL, 33, 34, 'scheduled', 'men', '3rd_place');      -- Match 50: M 3rd — filled after men's semis
 
 -- Finals (matches 51-52)
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
 (51, NULL, 19, 21, 'scheduled', 'women', 'final'),       -- Match 51: WF - Winner 45 vs Winner 46
-(52, NULL, 13, 14, 'scheduled', 'men', 'final');         -- Match 52: MF - Winner 47 vs Winner 48
+(52, NULL, 35, 36, 'scheduled', 'men', 'final');          -- Match 52: MF — filled after men's semis
 
 -- Re-enable safe update mode
 SET SQL_SAFE_UPDATES = 1;

@@ -127,12 +127,13 @@ export const promoteGroupToSuper6 = async () => {
   }
 };
 
-// After match 44 (last men's super6 match): Replace SA1/SA2/SB1/SB2 with super6 winners
+// After match 44 (last men's super6 match): Set semi-final match rows from Super 6 standings
+// MSF1 = Super A winner vs Super B runner-up | MSF2 = Super A runner-up vs Super B winner
+// (Semis must NOT reuse Super 6 team IDs 13–18 — those only reflect pool placeholders renamed after group stage.)
 export const promoteSuper6ToSemiFinals = async () => {
   try {
     const pool = getPool();
 
-    // Check that ALL men's super6 matches are finished
     const [unfinished] = await pool.query(
       "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='super6' AND status!='finished'"
     );
@@ -141,92 +142,135 @@ export const promoteSuper6ToSemiFinals = async () => {
       return false;
     }
 
-    // Load super6 groups
     const [groups] = await pool.query(
       "SELECT id, name FROM `groups` WHERE category = 'men' AND name LIKE 'Super %' ORDER BY id"
     );
 
-    if (!groups || groups.length === 0) {
-      throw new Error('No men super6 groups found to promote from');
+    if (!groups || groups.length < 2) {
+      throw new Error("Need Super A and Super B groups for men's Super 6 promotion");
     }
 
-    const groupIds = groups.map(g => g.id);
+    const groupIds = groups.map((g) => g.id);
 
-    // Load teams in super6
     const [teams] = await pool.query(
-      `SELECT t.id, t.name, t.group_id FROM teams t WHERE t.group_id IN (${groupIds.join(',')}) AND t.category = 'men'`
+      `SELECT t.id, t.name, t.group_id FROM teams t WHERE t.group_id IN (${groupIds.join(",")}) AND t.category = 'men'`
     );
 
-    // Load results for super6 matches
     const [results] = await pool.query(
       `SELECT r.*, m.team_1_id, m.team_2_id FROM results r
        JOIN matches m ON r.match_id = m.id WHERE m.match_type = 'super6' AND m.category = 'men'`
     );
 
-    // Load card penalties
     const [cardPenalties] = await pool.query("SELECT card_type, penalty_points FROM card_penalties");
     const penalties = {};
-    cardPenalties.forEach(p => { penalties[p.card_type] = p.penalty_points; });
-
-    // Calculate super6 standings
-    const stats = {};
-    teams.forEach(t => {
-      stats[t.id] = { team_id: t.id, team_name: t.name, group_id: t.group_id, played:0, won:0, drawn:0, lost:0, goals_for:0, goals_against:0, goal_difference:0, penalty_points:0, points:0 };
+    cardPenalties.forEach((p) => {
+      penalties[p.card_type] = p.penalty_points;
     });
 
-    results.forEach(r => {
-      const t1 = r.team_1_id; const t2 = r.team_2_id;
+    const stats = {};
+    teams.forEach((t) => {
+      stats[t.id] = {
+        team_id: t.id,
+        team_name: t.name,
+        group_id: t.group_id,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        goals_for: 0,
+        goals_against: 0,
+        goal_difference: 0,
+        penalty_points: 0,
+        points: 0,
+      };
+    });
+
+    results.forEach((r) => {
+      const t1 = r.team_1_id;
+      const t2 = r.team_2_id;
       if (stats[t1]) {
         stats[t1].played++;
         stats[t1].goals_for += r.team_1_score;
         stats[t1].goals_against += r.team_2_score;
-        stats[t1].penalty_points += (r.yellow_cards_team_1||0)*(penalties.yellow||0) + (r.red_cards_team_1||0)*(penalties.red||0) + (r.green_cards_team_1||0)*(penalties.green||0);
-        if (r.result === 'team_1_win') { stats[t1].won++; stats[t1].points += 3; }
-        else if (r.result === 'draw') { stats[t1].drawn++; stats[t1].points += 1; }
-        else if (r.result === 'team_2_win') { stats[t1].lost++; }
+        stats[t1].penalty_points +=
+          (r.yellow_cards_team_1 || 0) * (penalties.yellow || 0) +
+          (r.red_cards_team_1 || 0) * (penalties.red || 0) +
+          (r.green_cards_team_1 || 0) * (penalties.green || 0);
+        if (r.result === "team_1_win") {
+          stats[t1].won++;
+          stats[t1].points += 3;
+        } else if (r.result === "draw") {
+          stats[t1].drawn++;
+          stats[t1].points += 1;
+        } else if (r.result === "team_2_win") stats[t1].lost++;
       }
       if (stats[t2]) {
         stats[t2].played++;
         stats[t2].goals_for += r.team_2_score;
         stats[t2].goals_against += r.team_1_score;
-        stats[t2].penalty_points += (r.yellow_cards_team_2||0)*(penalties.yellow||0) + (r.red_cards_team_2||0)*(penalties.red||0) + (r.green_cards_team_2||0)*(penalties.green||0);
-        if (r.result === 'team_2_win') { stats[t2].won++; stats[t2].points += 3; }
-        else if (r.result === 'draw') { stats[t2].drawn++; stats[t2].points += 1; }
-        else if (r.result === 'team_1_win') { stats[t2].lost++; }
+        stats[t2].penalty_points +=
+          (r.yellow_cards_team_2 || 0) * (penalties.yellow || 0) +
+          (r.red_cards_team_2 || 0) * (penalties.red || 0) +
+          (r.green_cards_team_2 || 0) * (penalties.green || 0);
+        if (r.result === "team_2_win") {
+          stats[t2].won++;
+          stats[t2].points += 3;
+        } else if (r.result === "draw") {
+          stats[t2].drawn++;
+          stats[t2].points += 1;
+        } else if (r.result === "team_1_win") stats[t2].lost++;
       }
     });
 
-    Object.values(stats).forEach(s => { s.goal_difference = s.goals_for - s.goals_against; });
+    Object.values(stats).forEach((s) => {
+      s.goal_difference = s.goals_for - s.goals_against;
+    });
 
-    // For each super6 group, get top team
-    const updates = [];
-    for (const g of groups) {
-      const groupTeams = Object.values(stats).filter(s => s.group_id === g.id);
-      groupTeams.sort((a,b) => {
+    const rankGroup = (groupId) => {
+      const groupTeams = Object.values(stats).filter((s) => s.group_id === groupId);
+      groupTeams.sort((a, b) => {
         if (b.points !== a.points) return b.points - a.points;
         if (b.goal_difference !== a.goal_difference) return b.goal_difference - a.goal_difference;
         if (b.goals_for !== a.goals_for) return b.goals_for - a.goals_for;
         if (b.won !== a.won) return b.won - a.won;
         return b.penalty_points - a.penalty_points;
       });
-      const winner = groupTeams[0];
-      const letterIdx = groups.indexOf(g);
-      const semiPlaceholder = letterIdx === 0 ? 'SA1' : 'SB1'; // Assuming we have SA1, SB1 placeholders
-      
-      // Find and update placeholder
-      const [placeholder] = await pool.query('SELECT id FROM teams WHERE name = ? AND is_placeholder = 1', [semiPlaceholder]);
-      if (placeholder[0]) {
-        const realName = winner.team_name;
-        updates.push({ placeholder: semiPlaceholder, newName: realName });
-        await pool.query('UPDATE teams SET name = ? WHERE id = ?', [realName, placeholder[0].id]);
-      }
+      return groupTeams;
+    };
+
+    const superAId = groups[0].id;
+    const superBId = groups[1].id;
+    const rankedA = rankGroup(superAId);
+    const rankedB = rankGroup(superBId);
+
+    if (rankedA.length < 2 || rankedB.length < 2) {
+      throw new Error("Super 6 standings incomplete — need at least 2 teams per Super pool");
     }
 
-    console.log(`[promoteSuper6ToSemiFinals] Auto-promoted ${updates.length} teams to semi-finals`);
-    emitToUsers('semi_finals_promoted', { updated: updates.length, details: updates });
+    const saWinner = rankedA[0].team_id;
+    const saRunner = rankedA[1].team_id;
+    const sbWinner = rankedB[0].team_id;
+    const sbRunner = rankedB[1].team_id;
+
+    await pool.query(
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 47 AND category = ? AND match_type = ?",
+      [saWinner, sbRunner, "men", "semi_final"]
+    );
+    await pool.query(
+      "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 48 AND category = ? AND match_type = ?",
+      [saRunner, sbWinner, "men", "semi_final"]
+    );
+
+    console.log(
+      `[promoteSuper6ToSemiFinals] Semi line-ups: 47 (${saWinner} vs ${sbRunner}), 48 (${saRunner} vs ${sbWinner})`
+    );
+    emitToUsers("semi_finals_promoted", {
+      match47: [saWinner, sbRunner],
+      match48: [saRunner, sbWinner],
+    });
     return true;
   } catch (err) {
-    console.error('[promoteSuper6ToSemiFinals] Error:', err);
+    console.error("[promoteSuper6ToSemiFinals] Error:", err);
     return false;
   }
 };
