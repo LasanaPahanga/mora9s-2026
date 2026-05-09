@@ -6,6 +6,27 @@ import SEO from "../components/SEO.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+/** Knockout / stage ordering within each category tab */
+const MATCH_STAGE_ORDER = {
+  group_stage: 0,
+  super6: 1,
+  semi_final: 2,
+  "3rd_place": 3,
+  final: 4,
+};
+
+/** WSF1/WSF2 or MSF1/MSF2 from schedule order (same category, by match id) */
+function semiFinalSlotLabel(match, allMatches) {
+  if (match.match_type !== "semi_final") return null;
+  const semis = allMatches
+    .filter((x) => x.category === match.category && x.match_type === "semi_final")
+    .sort((a, b) => a.id - b.id);
+  const idx = semis.findIndex((x) => x.id === match.id);
+  if (idx < 0) return null;
+  const prefix = match.category === "women" ? "WSF" : "MSF";
+  return `${prefix}${idx + 1}`;
+}
+
 function Matches() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +67,14 @@ function Matches() {
     fetchMatches();
   });
 
-  const filteredMatches = matches.filter((match) => match.category === filter);
+  const filteredMatches = matches
+    .filter((match) => match.category === filter)
+    .sort((a, b) => {
+      const oa = MATCH_STAGE_ORDER[a.match_type] ?? 99;
+      const ob = MATCH_STAGE_ORDER[b.match_type] ?? 99;
+      if (oa !== ob) return oa - ob;
+      return a.id - b.id;
+    });
 
   // Function to get university logo based on team name
   const getTeamLogo = (teamName) => {
@@ -109,7 +137,9 @@ function Matches() {
           </div>
         ) : (
           <div className="space-y-3 sm:space-y-4">
-            {filteredMatches.map((m) => (
+            {filteredMatches.map((m) => {
+              const semiLabel = semiFinalSlotLabel(m, matches);
+              return (
               <div
                 key={m.id}
                 className="bg-slate-800/90 rounded-xl border border-slate-700 p-3 sm:p-5 hover:border-emerald-500/60 transition-all overflow-hidden shadow-lg shadow-black/20"
@@ -118,13 +148,18 @@ function Matches() {
                   <span className="text-[10px] sm:text-xs bg-slate-700/90 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-slate-300">
                     #{m.id}
                   </span>
-                  {m.group_name && (
+                  {semiLabel && (
+                    <span className="text-[10px] sm:text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold tracking-wide">
+                      {semiLabel}
+                    </span>
+                  )}
+                  {m.group_name && m.match_type !== "semi_final" && (
                     <span className="text-[10px] sm:text-xs bg-emerald-900/80 text-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">
                       {m.group_name}
                     </span>
                   )}
                   {m.match_type === "semi_final" && (
-                    <span className="text-[10px] sm:text-xs bg-orange-900/80 text-orange-200 px-2 py-0.5 rounded-full font-semibold">
+                    <span className="text-[10px] sm:text-xs bg-orange-500 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-semibold shadow-sm">
                       Semi Final
                     </span>
                   )}
@@ -225,7 +260,8 @@ function Matches() {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>
