@@ -6,6 +6,18 @@ import SEO from "../components/SEO.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
+/** Matches Teams page: no placeholders; Mora A + Mora B → one slot per category */
+function countListedUniversities(teams) {
+  const keys = new Set();
+  for (const t of teams) {
+    if (t.is_placeholder) continue;
+    const base = String(t.name ?? "").replace(/\s+[A-Z]$/, "").trim();
+    if (!base) continue;
+    keys.add(`${t.category}:${base}`);
+  }
+  return keys.size;
+}
+
 function Home() {
   const [stats, setStats] = useState({
     teams: 0,
@@ -24,7 +36,7 @@ function Home() {
         ]);
 
         setStats({
-          teams: teamsRes.data.length,
+          teams: countListedUniversities(teamsRes.data),
           matches: matchesRes.data.length,
           results: resultsRes.data.length,
         });
