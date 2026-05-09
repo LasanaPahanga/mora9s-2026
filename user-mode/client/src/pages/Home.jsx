@@ -6,16 +6,9 @@ import SEO from "../components/SEO.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-/** Matches Teams page: no placeholders; Mora A + Mora B → one slot per category */
-function countListedUniversities(teams) {
-  const keys = new Set();
-  for (const t of teams) {
-    if (t.is_placeholder) continue;
-    const base = String(t.name ?? "").replace(/\s+[A-Z]$/, "").trim();
-    if (!base) continue;
-    keys.add(`${t.category}:${base}`);
-  }
-  return keys.size;
+/** Hero stat: each non-placeholder team row (Mora A + Mora B = 2); Teams page still merges those for display */
+function countParticipatingTeamRows(teams) {
+  return teams.filter((t) => !t.is_placeholder).length;
 }
 
 function Home() {
@@ -36,7 +29,7 @@ function Home() {
         ]);
 
         setStats({
-          teams: countListedUniversities(teamsRes.data),
+          teams: countParticipatingTeamRows(teamsRes.data),
           matches: matchesRes.data.length,
           results: resultsRes.data.length,
         });
