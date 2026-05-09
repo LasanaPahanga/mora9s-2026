@@ -95,6 +95,7 @@ function Matches() {
       'Ruhuna': 'ruhuna.png',
       'Kelani': 'kelani.png',
       'Japura': 'japura.png',
+      'SLIIT': 'sliit.png',
       'Colombo': 'pera.png' // Assuming Colombo uses Pera logo, adjust if needed
     };
 
