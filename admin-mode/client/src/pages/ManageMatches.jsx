@@ -69,9 +69,13 @@ function ManageMatches() {
 
   const validateForm = () => {
     const errs = {};
-    // Group is required for Group Stage and Super 6 matches
-    if (!form.group_id && (form.match_type === 'group_stage' || form.match_type === 'super6')) {
-      errs.group_id = "Required for Group Stage matches";
+    // Women category cannot have Super 6 matches
+    if (form.category === 'women' && form.match_type === 'super6') {
+      errs.match_type = "Super 6 is not available for Women category";
+    }
+    // Group is required for Group Stage and Super 6 matches (except Women)
+    if (!form.group_id && (form.match_type === 'group_stage' || form.match_type === 'super6') && form.category !== 'women') {
+      errs.group_id = "Required for Group Stage and Super 6 matches";
     }
     if (!form.team_1_id) errs.team_1_id = "Required";
     if (!form.team_2_id) errs.team_2_id = "Required";
@@ -170,8 +174,8 @@ function ManageMatches() {
         onSubmit={handleSubmit}
         className="bg-slate-800 rounded-lg p-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3 items-end"
       >
-        {/* Group field - only show for Group Stage matches */}
-        {form.match_type === 'group_stage' && (
+        {/* Group field - only show for Group Stage or Super6 (when applicable) */}
+        {(form.match_type === 'group_stage' || form.match_type === 'super6') && form.category !== 'women' && (
           <div>
             <label className="block text-sm text-slate-300 mb-1">
               Group <span className="text-red-400">*</span>
@@ -291,7 +295,9 @@ function ManageMatches() {
             className="w-full px-3 py-2 rounded bg-slate-900 text-white border border-slate-700"
           >
             <option value="group_stage">Group Stage</option>
-            <option value="super6">Super 6</option>
+            {form.category !== 'women' && (
+              <option value="super6">Super 6</option>
+            )}
             <option value="semi_final">Semi Final</option>
             <option value="3rd_place">3rd Place</option>
             <option value="final">Final</option>
