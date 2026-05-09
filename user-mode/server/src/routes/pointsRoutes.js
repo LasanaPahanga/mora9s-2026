@@ -4,9 +4,19 @@ import { getPool } from "../db.js";
 const router = express.Router();
 
 // GET /api/points - Auto-calculated points table
+function isMenSuperSixGroupName(name) {
+  return /^Super\s/i.test(String(name || ""));
+}
+
 router.get("/", async (req, res) => {
   try {
     const pool = getPool();
+
+    const [unfinishedMenRows] = await pool.query(
+      `SELECT COUNT(*) AS cnt FROM matches
+       WHERE category = 'men' AND match_type = 'group_stage' AND status <> 'finished'`
+    );
+    const menGroupStageFinished = Number(unfinishedMenRows[0].cnt) === 0;
     
     // Omit knockout bracket placeholders (SA1, "Men Final — pending", etc.) — they have no group
     // and must not appear as a fake "No Group" standings bucket. Super 6 placeholders stay (they have group_id).
@@ -125,8 +135,22 @@ router.get("/", async (req, res) => {
       // For penalty points: -1 is better than -2, so higher (less negative) is better
       return b.penalty_points - a.penalty_points;
     });
-    
-    res.json(sortedTeams);
+
+    const standings =
+      menGroupStageFinished
+        ? sortedTeams
+        : sortedTeams.filter(
+            (t) =>
+              !(
+                t.category === "men" &&
+                isMenSuperSixGroupName(t.group_name)
+              )
+          );
+
+    res.json({
+      standings,
+      men_group_stage_finished: menGroupStageFinished,
+    });
   } catch (err) {
     console.error("Error calculating points", err);
     res.status(500).json({ error: "Failed to calculate points" });

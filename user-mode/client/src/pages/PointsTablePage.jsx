@@ -11,6 +11,8 @@ function PointsTablePage() {
   const [loading, setLoading] = useState(true);
   const [groupedData, setGroupedData] = useState({});
   const [filter, setFilter] = useState("men");
+  /** Undefined until loaded — avoids flashing Super Six notice */
+  const [menGroupStageFinished, setMenGroupStageFinished] = useState(undefined);
 
   // Fetch initial data
   const fetchPoints = () => {
@@ -18,11 +20,20 @@ function PointsTablePage() {
     axios
       .get(`${API_URL}/api/points`)
       .then((res) => {
-        setPoints(res.data);
-        
+        const payload = res.data;
+        const standings = Array.isArray(payload)
+          ? payload
+          : payload.standings ?? [];
+        setMenGroupStageFinished(
+          Array.isArray(payload)
+            ? undefined
+            : Boolean(payload.men_group_stage_finished)
+        );
+        setPoints(standings);
+
         // Group data by category and group
         const grouped = {};
-        res.data.forEach(team => {
+        standings.forEach((team) => {
           const category = team.category || 'unknown';
           const groupName = team.group_name || 'No Group';
           
@@ -34,7 +45,7 @@ function PointsTablePage() {
           }
           grouped[category][groupName].push(team);
         });
-        
+
         setGroupedData(grouped);
         setLoading(false);
       })
@@ -189,6 +200,13 @@ function PointsTablePage() {
             { key: "women", label: "Women's", icon: "🏑", count: points.filter((p) => p.category === "women").length },
           ]}
         />
+
+        {filter === "men" && menGroupStageFinished === false && (
+          <p className="mb-6 rounded-lg border border-slate-600 bg-slate-800/80 px-4 py-3 text-sm text-slate-400">
+            Men&apos;s Super Six tables show here after every men&apos;s group-stage match is
+            finished.
+          </p>
+        )}
 
         {loading ? (
           <div className="text-center text-slate-400 py-12">Loading points table...</div>
