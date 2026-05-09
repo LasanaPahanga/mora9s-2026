@@ -8,6 +8,7 @@ import matchesRoutes from "./routes/matchesRoutes.js";
 import resultsRoutes from "./routes/resultsRoutes.js";
 import goalScorersRoutes from "./routes/goalScorersRoutes.js";
 import cardPenaltiesRoutes from "./routes/cardPenaltiesRoutes.js";
+import super6Routes from "./routes/super6Routes.js";
 import { connectToUserServer } from "./utils/socket.js";
 
 const app = express();
@@ -22,6 +23,7 @@ app.use("/admin/matches", matchesRoutes);
 app.use("/admin/results", resultsRoutes);
 app.use("/admin", goalScorersRoutes);
 app.use("/admin", cardPenaltiesRoutes);
+app.use("/admin/super6", super6Routes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Mora 9s 2026 Admin API" });
