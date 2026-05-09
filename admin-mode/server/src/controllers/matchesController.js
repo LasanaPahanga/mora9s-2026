@@ -1,5 +1,6 @@
 import { getPool } from "../db.js";
 import { emitToUsers } from "../utils/socket.js";
+import { triggerAutoPromotion } from "./promotionController.js";
 
 export const getMatches = async (req, res) => {
   try {
@@ -80,6 +81,10 @@ export const updateMatch = async (req, res) => {
 
   try {
     const pool = getPool();
+    const [[before]] = await pool.query(
+      "SELECT status FROM matches WHERE id = ?",
+      [id]
+    );
     await pool.query(
       `UPDATE matches
        SET group_id = ?, team_1_id = ?, team_2_id = ?, status = ?, category = ?, match_type = ?
@@ -103,7 +108,11 @@ export const updateMatch = async (req, res) => {
       category,
       match_type
     };
-    
+
+    if (status === "finished" && before?.status !== "finished") {
+      await triggerAutoPromotion(Number(id));
+    }
+
     // Emit real-time update to user clients
     emitToUsers('match_updated', updatedMatch);
     

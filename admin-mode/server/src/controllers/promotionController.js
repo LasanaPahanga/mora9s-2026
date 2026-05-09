@@ -135,7 +135,7 @@ export const promoteSuper6ToSemiFinals = async () => {
     const pool = getPool();
 
     const [unfinished] = await pool.query(
-      "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='super6' AND status!='finished'"
+      "SELECT COUNT(*) as cnt FROM matches WHERE category='men' AND match_type='super6' AND NOT (status <=> 'finished')"
     );
     if (unfinished[0].cnt > 0) {
       console.log(`[promoteSuper6ToSemiFinals] ${unfinished[0].cnt} super6 matches still pending, skipping promotion`);
@@ -252,14 +252,20 @@ export const promoteSuper6ToSemiFinals = async () => {
     const sbWinner = rankedB[0].team_id;
     const sbRunner = rankedB[1].team_id;
 
-    await pool.query(
+    const [u47] = await pool.query(
       "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 47 AND category = ? AND match_type = ?",
       [saWinner, sbRunner, "men", "semi_final"]
     );
-    await pool.query(
+    const [u48] = await pool.query(
       "UPDATE matches SET team_1_id = ?, team_2_id = ? WHERE id = 48 AND category = ? AND match_type = ?",
       [saRunner, sbWinner, "men", "semi_final"]
     );
+    if (!u47.affectedRows || !u48.affectedRows) {
+      console.error(
+        "[promoteSuper6ToSemiFinals] Semi UPDATE missed rows — check match ids 47/48 (category men, semi_final).",
+        { affected47: u47.affectedRows, affected48: u48.affectedRows }
+      );
+    }
 
     console.log(
       `[promoteSuper6ToSemiFinals] Semi line-ups: 47 (${saWinner} vs ${sbRunner}), 48 (${saRunner} vs ${sbWinner})`
@@ -268,6 +274,8 @@ export const promoteSuper6ToSemiFinals = async () => {
       match47: [saWinner, sbRunner],
       match48: [saRunner, sbWinner],
     });
+    emitToUsers("match_updated", { id: 47 });
+    emitToUsers("match_updated", { id: 48 });
     return true;
   } catch (err) {
     console.error("[promoteSuper6ToSemiFinals] Error:", err);
