@@ -172,11 +172,11 @@ INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match
 (45, NULL, 37, 38, 'scheduled', 'women', 'semi_final'), -- WSF1 A1 vs B2 → filled by promotion
 (46, NULL, 39, 40, 'scheduled', 'women', 'semi_final'), -- WSF2 B1 vs A2
 (47, NULL, 29, 30, 'scheduled', 'men', 'semi_final'),    -- MSF1 SA1 vs SB2 → Super 6 promotion
-(48, NULL, 31, 32, 'scheduled', 'men', 'semi_final'),    -- MSF2 SB1 vs SA2
+(48, NULL, 31, 32, 'scheduled', 'men', 'semi_final');    -- MSF2 SB1 vs SA2
 
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
 (49, NULL, 41, 42, 'scheduled', 'women', '3rd_place'),  -- W 3rd loser SF1 vs loser SF2
-(50, NULL, 33, 34, 'scheduled', 'men', '3rd_place'),    -- M 3rd loser MSF1 vs loser MSF2
+(50, NULL, 33, 34, 'scheduled', 'men', '3rd_place');    -- M 3rd loser MSF1 vs loser MSF2
 
 INSERT INTO matches (id, group_id, team_1_id, team_2_id, status, category, match_type) VALUES
 (51, NULL, 43, 44, 'scheduled', 'women', 'final'),     -- WF winner 45 vs winner 46
