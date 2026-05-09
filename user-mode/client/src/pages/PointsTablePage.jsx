@@ -105,9 +105,9 @@ function PointsTablePage() {
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         <p className="mb-1.5 text-[10px] text-slate-500 sm:hidden">
-          ← Swipe the table sideways to see GF, GA, GD, Pts →
+          ← Swipe the table sideways for GF, GA, GD, card penalties, Pts →
         </p>
-        <table className="w-full min-w-[34rem] border-collapse text-xs sm:min-w-full sm:text-sm">
+        <table className="w-full min-w-[38rem] border-collapse text-xs sm:min-w-full sm:text-sm">
           <thead className="bg-slate-900/50">
             <tr>
               <th className="whitespace-nowrap px-2 py-2.5 text-left text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">Pos</th>
@@ -119,6 +119,12 @@ function PointsTablePage() {
               <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GF</th>
               <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GA</th>
               <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs">GD</th>
+              <th
+                className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-slate-300 sm:px-4 sm:py-3 sm:text-xs"
+                title="Discipline: points from yellow / red / green cards (tiebreaker)"
+              >
+                Cards
+              </th>
               <th className="whitespace-nowrap px-2 py-2.5 text-center text-[10px] font-semibold text-emerald-400 sm:px-4 sm:py-3 sm:text-xs">Pts</th>
             </tr>
           </thead>
@@ -162,6 +168,20 @@ function PointsTablePage() {
                   >
                     {row.goal_difference > 0 ? "+" : ""}
                     {row.goal_difference}
+                  </span>
+                </td>
+                <td className="px-2 py-2 text-center sm:px-4 sm:py-3 tabular-nums">
+                  <span
+                    className={`font-semibold ${
+                      Number(row.penalty_points ?? 0) < 0
+                        ? "text-amber-400"
+                        : Number(row.penalty_points ?? 0) > 0
+                          ? "text-emerald-400"
+                          : "text-slate-500"
+                    }`}
+                  >
+                    {Number(row.penalty_points ?? 0) > 0 ? "+" : ""}
+                    {Number(row.penalty_points ?? 0)}
                   </span>
                 </td>
                 <td className="px-2 py-2 text-center sm:px-4 sm:py-3">
