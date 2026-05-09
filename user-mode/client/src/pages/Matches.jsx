@@ -62,8 +62,15 @@ function Matches() {
       'Japura': 'japura.png',
       'Colombo': 'pera.png' // Assuming Colombo uses Pera logo, adjust if needed
     };
-    
-    return logoMap[teamName] || 'mora.png'; // Default fallback
+
+    if (!teamName) return 'mora.png';
+
+    // Direct mapping first
+    if (logoMap[teamName]) return logoMap[teamName];
+
+    // Attempt slug-based filename match: e.g. "Eastern University" -> "eastern.png", "NSBM" -> "nsbm.png"
+    const slug = teamName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return `${slug}.png`;
   };
 
   return (
