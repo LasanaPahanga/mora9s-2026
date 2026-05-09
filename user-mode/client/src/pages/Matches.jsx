@@ -15,11 +15,18 @@ const MATCH_STAGE_ORDER = {
   final: 4,
 };
 
+/** MySQL ENUM / drivers sometimes return non-string; keeps badges logic reliable */
+function normalizeMatchType(match) {
+  const raw = match?.match_type;
+  if (raw == null || raw === "") return "";
+  return String(raw).toLowerCase().trim().replace(/-/g, "_");
+}
+
 /** WSF1/WSF2 or MSF1/MSF2 from schedule order (same category, by match id) */
 function semiFinalSlotLabel(match, allMatches) {
-  if (match.match_type !== "semi_final") return null;
+  if (normalizeMatchType(match) !== "semi_final") return null;
   const semis = allMatches
-    .filter((x) => x.category === match.category && x.match_type === "semi_final")
+    .filter((x) => x.category === match.category && normalizeMatchType(x) === "semi_final")
     .sort((a, b) => a.id - b.id);
   const idx = semis.findIndex((x) => x.id === match.id);
   if (idx < 0) return null;
@@ -70,8 +77,8 @@ function Matches() {
   const filteredMatches = matches
     .filter((match) => match.category === filter)
     .sort((a, b) => {
-      const oa = MATCH_STAGE_ORDER[a.match_type] ?? 99;
-      const ob = MATCH_STAGE_ORDER[b.match_type] ?? 99;
+      const oa = MATCH_STAGE_ORDER[normalizeMatchType(a)] ?? 99;
+      const ob = MATCH_STAGE_ORDER[normalizeMatchType(b)] ?? 99;
       if (oa !== ob) return oa - ob;
       return a.id - b.id;
     });
@@ -139,50 +146,55 @@ function Matches() {
           <div className="space-y-3 sm:space-y-4">
             {filteredMatches.map((m) => {
               const semiLabel = semiFinalSlotLabel(m, matches);
+              const mt = normalizeMatchType(m);
               return (
               <div
                 key={m.id}
                 className="bg-slate-800/90 rounded-xl border border-slate-700 p-3 sm:p-5 hover:border-emerald-500/60 transition-all overflow-hidden shadow-lg shadow-black/20"
               >
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                  <span className="text-[10px] sm:text-xs bg-slate-700/90 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-slate-300">
+                  <span className="text-[10px] sm:text-xs bg-slate-600 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-medium text-white">
                     #{m.id}
                   </span>
                   {semiLabel && (
-                    <span className="text-[10px] sm:text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold tracking-wide">
+                    <span className="text-[10px] sm:text-xs bg-slate-600 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-bold tracking-wide text-white">
                       {semiLabel}
                     </span>
                   )}
-                  {m.group_name && m.match_type !== "semi_final" && (
+                  {m.group_name && mt !== "semi_final" && (
                     <span className="text-[10px] sm:text-xs bg-emerald-900/80 text-emerald-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full">
                       {m.group_name}
                     </span>
                   )}
-                  {m.match_type === "semi_final" && (
-                    <span className="text-[10px] sm:text-xs bg-orange-500 text-white px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-semibold shadow-sm">
+                  {mt === "semi_final" && (
+                    <span className="text-[10px] sm:text-xs bg-[#f97316] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-semibold text-white shadow-sm ring-1 ring-white/10">
                       Semi Final
                     </span>
                   )}
-                  {m.match_type === "final" && (
+                  {mt === "final" && (
                     <span className="text-[10px] sm:text-xs bg-yellow-900/80 text-yellow-200 px-2 py-0.5 rounded-full font-semibold">
                       Final
                     </span>
                   )}
-                  {m.match_type === "3rd_place" && (
+                  {mt === "3rd_place" && (
                     <span className="text-[10px] sm:text-xs bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded-full font-semibold">
                       3rd Place
                     </span>
                   )}
                   <span
-                    className={`text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full ${
-                      m.status === "finished" ? "bg-blue-900/80 text-blue-200" : "bg-amber-900/80 text-amber-200"
+                    className={`text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-medium ${
+                      m.status === "finished"
+                        ? "bg-blue-800 text-white"
+                        : "bg-[#c2410c] text-white"
                     }`}
                   >
                     {m.status === "finished" ? "Finished" : "Scheduled"}
                   </span>
                   <span
-                    className={`text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full ${
-                      m.category === "women" ? "bg-pink-900/80 text-pink-200" : "bg-blue-900/80 text-blue-200"
+                    className={`text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-medium ${
+                      m.category === "women"
+                        ? "bg-pink-800 text-white"
+                        : "bg-blue-600 text-white"
                     }`}
                   >
                     {m.category === "women" ? "Women" : "Men"}
