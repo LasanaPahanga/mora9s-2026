@@ -1,6 +1,5 @@
-import { getPool } from '../db.js';
-import { emitToUsers } from '../utils/socket.js';
-import { getPool, emitToUsers } from '../app.js';
+import { getPool } from "../db.js";
+import { emitToUsers } from "../utils/socket.js";
 
 // ========================================
 // AUTO-PROMOTION LOGIC

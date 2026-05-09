@@ -1,9 +1,4 @@
-import { getPool, emitToUsers } from '../app.js';
-import { getPool } from '../db.js';
-import { emitToUsers } from '../utils/socket.js';
-import { promoteGroupToSuper6 } from './promotionController.js';
-import { getPool } from "../db.js";
-import { emitToUsers } from "../utils/socket.js";
+import { promoteGroupToSuper6 } from "./promotionController.js";
 
 // Promote top teams from each group into Super6 placeholders (A1,A2,B1,B2,C1,C2)
 // Manual endpoint to trigger group->super6 promotion
