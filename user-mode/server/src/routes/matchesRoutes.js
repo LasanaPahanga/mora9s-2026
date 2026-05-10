@@ -1,5 +1,9 @@
 import express from "express";
 import { getPool } from "../db.js";
+import {
+  applyMensSuperSixPlaceholderNames,
+  isMensGroupStageComplete,
+} from "../utils/mensGroupStage.js";
 
 const router = express.Router();
 
@@ -26,7 +30,7 @@ router.get("/", async (req, res) => {
       LEFT JOIN results r ON m.id = r.match_id
       ORDER BY m.id ASC
     `);
-    res.json(rows);
+    res.json(rows.map((row) => applyMensSuperSixPlaceholderNames(row, menGsComplete)));
   } catch (err) {
     console.error("Error fetching matches", err);
     res.status(500).json({ error: "Failed to fetch matches" });

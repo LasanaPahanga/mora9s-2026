@@ -1,5 +1,9 @@
 import express from "express";
 import { getPool } from "../db.js";
+import {
+  applyMensSuperSixPlaceholderNames,
+  isMensGroupStageComplete,
+} from "../utils/mensGroupStage.js";
 
 const router = express.Router();
 
@@ -69,7 +73,8 @@ function generateMatchDescription(result) {
 router.get("/", async (req, res) => {
   try {
     const pool = getPool();
-    
+    const menGsComplete = await isMensGroupStageComplete(pool);
+
     // Get results with team names and match info including match_type and category
     const [results] = await pool.query(`
       SELECT 
@@ -86,7 +91,11 @@ router.get("/", async (req, res) => {
       JOIN teams t2 ON m.team_2_id = t2.id
       ORDER BY r.id DESC
     `);
-    
+
+    for (let i = 0; i < results.length; i++) {
+      results[i] = applyMensSuperSixPlaceholderNames(results[i], menGsComplete);
+    }
+
     // Get goal scorers for each result and generate descriptions
     for (let result of results) {
       const [scorers] = await pool.query(`
