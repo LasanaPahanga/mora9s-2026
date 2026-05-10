@@ -11,6 +11,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const pool = getPool();
+    const menGsComplete = await isMensGroupStageComplete(pool);
     const [rows] = await pool.query(`
       SELECT 
         m.*,
